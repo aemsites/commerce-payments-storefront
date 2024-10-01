@@ -1,7 +1,5 @@
-/* eslint-disable import/extensions */
 const fs = require('fs');
 const path = require('path');
-const { dependencies } = require('./package.json');
 
 // Define the dropins folder
 const dropinsDir = path.join('scripts', '__dropins__');
@@ -16,11 +14,6 @@ fs.mkdirSync(dropinsDir, { recursive: true });
 
 // Copy specified files from node_modules/@dropins to scripts/__dropins__
 fs.readdirSync('node_modules/@dropins', { withFileTypes: true }).forEach((file) => {
-  // Skip if package is not in package.json dependencies / skip devDependencies
-  if (!dependencies[`@dropins/${file.name}`]) {
-    return;
-  }
-
   // Skip if is not folder
   if (!file.isDirectory()) {
     return;
@@ -63,7 +56,7 @@ function checkPackageLockForArtifactory() {
 checkPackageLockForArtifactory()
   .then((found) => {
     if (!found) {
-      console.info('✅ Drop-ins installed successfully!', '\n');
+      console.info('🫡 Drop-ins installed successfully!');
       process.exit(0);
     } else {
       console.error('🚨 Fix artifactory references before committing! 🚨');

@@ -12,13 +12,6 @@ export interface CartProps extends HTMLAttributes<HTMLDivElement> {
         OrderSummary?: SlotProps<DefaultSlotContext>;
         ProductList?: SlotProps;
     };
-    showDiscount?: boolean;
-    showSavings?: boolean;
-    quantityType?: 'stepper' | 'dropdown';
-    dropdownOptions?: {
-        value: string;
-        text: string;
-    }[];
 }
 export declare const Cart: Container<CartProps, CartModel | null>;
 export {};

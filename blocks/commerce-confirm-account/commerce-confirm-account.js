@@ -4,20 +4,18 @@ import { SignIn } from '@dropins/storefront-auth/containers/SignIn.js';
 import { SuccessNotification } from '@dropins/storefront-auth/containers/SuccessNotification.js';
 import * as authApi from '@dropins/storefront-auth/api.js';
 import { render as authRenderer } from '@dropins/storefront-auth/render.js';
-import { Button, provider as UI } from '@dropins/tools/components.js';
-import { checkIsAuthenticated } from '../../scripts/configs.js';
-import { CUSTOMER_ACCOUNT_PATH, CUSTOMER_FORGOTPASSWORD_PATH } from '../../scripts/constants.js';
-
-// Initialize
-import '../../scripts/initializers/auth.js';
+import { Button } from '@dropins/tools/components.js';
+import { getCookie } from '../../scripts/configs.js';
 
 export default async function decorate(block) {
-  if (checkIsAuthenticated()) {
-    window.location.href = CUSTOMER_ACCOUNT_PATH;
+  const isAuthenticated = !!getCookie('auth_dropin_user_token');
+
+  if (isAuthenticated) {
+    window.location.href = '/customer/account';
   } else {
     await authRenderer.render(SignIn, {
       enableEmailConfirmation: true,
-      routeForgotPassword: () => CUSTOMER_FORGOTPASSWORD_PATH,
+      routeForgotPassword: () => '/customer/forgotpassword',
       slots: {
         SuccessNotification: (ctx) => {
           const userName = ctx?.isSuccessful?.userName || '';
@@ -33,11 +31,11 @@ export default async function decorate(block) {
               SuccessNotificationActions: (innerCtx) => {
                 const primaryBtn = document.createElement('div');
 
-                UI.render(Button, {
+                authRenderer.render(Button, {
                   children: 'My Account',
 
                   onClick: () => {
-                    window.location.href = CUSTOMER_ACCOUNT_PATH;
+                    window.location.href = '/customer/account';
                   },
                 })(primaryBtn);
 
@@ -48,7 +46,7 @@ export default async function decorate(block) {
                 secondaryButton.style.justifyContent = 'center';
                 secondaryButton.style.marginTop = 'var(--spacing-xsmall)';
 
-                UI.render(Button, {
+                authRenderer.render(Button, {
                   children: 'Logout',
                   variant: 'tertiary',
                   onClick: async () => {

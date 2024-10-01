@@ -1,8 +1,6 @@
 import { UseSingUpFormProps } from '../../types';
 
-export declare const useSignUpForm: ({ requireRetypePassword, addressesData, translations, isEmailConfirmationRequired, apiVersion2, passwordConfigs, isAutoSignInEnabled, routeRedirectOnSignIn, routeSignIn, onErrorCallback, onSuccessCallback, setActiveComponent, handleSetInLineAlertProps, routeRedirectOnEmailConfirmationClose, }: UseSingUpFormProps) => {
-    confirmPassword: string;
-    confirmPasswordMessage: string;
+export declare const useSignUpForm: ({ addressesData, translations, isEmailConfirmationRequired, apiVersion2, passwordConfigs, isAutoSignInEnabled, routeRedirectOnSignIn, routeSignIn, onErrorCallback, onSuccessCallback, setActiveComponent, handleSetInLineAlertProps, routeRedirectOnEmailConfirmationClose, }: UseSingUpFormProps) => {
     isKeepMeLogged: boolean;
     userEmail: string;
     showEmailConfirmationForm: boolean;
@@ -18,6 +16,5 @@ export declare const useSignUpForm: ({ requireRetypePassword, addressesData, tra
     handleSetSignUpPasswordValue: (value: string) => void;
     onKeepMeLoggedChange: ({ target }: any) => void;
     handleHideEmailConfirmationForm: () => void;
-    handleConfirmPasswordChange: (value: string) => void;
 };
 //# sourceMappingURL=useSignUpForm.d.ts.map

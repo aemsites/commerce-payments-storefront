@@ -3,8 +3,10 @@
 
 // Dropin Tools
 import { events } from '@dropins/tools/event-bus.js';
+import { initializers } from '@dropins/tools/initializer.js';
 
 // Order Confirmation Dropin Modules
+import * as orderConfirmationApi from '@dropins/storefront-order-confirmation/api.js';
 import { render as provider } from '@dropins/storefront-order-confirmation/render.js';
 import OrderConfirmation from '@dropins/storefront-order-confirmation/containers/OrderConfirmation.js';
 
@@ -13,16 +15,13 @@ import { render as authProvider } from '@dropins/storefront-auth/render.js';
 import SignUp from '@dropins/storefront-auth/containers/SignUp.js';
 
 import { createModal } from '../modal/modal.js';
-import { CUSTOMER_ACCOUNT_PATH, CUSTOMER_LOGIN_PATH, SUPPORT_PATH } from '../../scripts/constants.js';
-
-// Initialize
-import '../../scripts/initializers/auth.js';
-import '../../scripts/initializers/order-confirmation.js';
 
 export default async function decorate(block) {
   let modal = null;
 
   // Initialize Dropins
+  initializers.register(orderConfirmationApi.initialize, {});
+
   events.on('authenticated', (isAuthenticated) => {
     if (isAuthenticated && modal) {
       modal.removeModal();
@@ -34,8 +33,8 @@ export default async function decorate(block) {
     const signUpForm = document.createElement('div');
 
     authProvider.render(SignUp, {
-      routeSignIn: () => CUSTOMER_LOGIN_PATH,
-      routeRedirectOnEmailConfirmationClose: () => CUSTOMER_ACCOUNT_PATH,
+      routeSignIn: () => '/customer/login',
+      routeRedirectOnEmailConfirmationClose: () => '/customer/account',
       inputsDefaultValueSet,
       addressesData,
     })(signUpForm);
@@ -51,6 +50,6 @@ export default async function decorate(block) {
     orderRef,
     onSignUpClick,
     routeHome: () => '/',
-    routeSupport: () => SUPPORT_PATH,
+    routeSupport: () => '/support',
   })(block);
 }

@@ -9,9 +9,7 @@ export interface OrderSummaryProps extends HTMLAttributes<HTMLDivElement> {
     routeCheckout?: (context: CheckoutRouteContext) => string;
     slots?: {
         EstimateShipping?: SlotProps;
-        Coupons?: SlotProps;
     };
-    enableCoupons?: boolean;
     errors: boolean;
 }
 export declare const OrderSummary: Container<OrderSummaryProps, CartModel | null>;

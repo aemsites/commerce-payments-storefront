@@ -1,10 +1,7 @@
 declare const _default: {
   "Cart": {
     "Cart": {
-      "heading": "Shopping Cart ({count})",
-      "editCart": "Edit",
-      "viewAll": "View all in cart",
-      "viewMore": "View more"
+      "heading": "Shopping Cart ({count})"
     },
     "MiniCart": {
       "heading": "Shopping Cart ({count})",
@@ -50,7 +47,6 @@ declare const _default: {
       },
       "total": {
         "estimated": "Estimated Total",
-        "free": "Free",
         "label": "Total",
         "withoutTax": "Total excluding taxes"
       },
@@ -68,12 +64,7 @@ declare const _default: {
           "label": "Apply"
         }
       },
-      "freeShipping": "Free",
-      "coupon": {
-        "applyAction": "Apply",
-        "placeholder": "Enter code",
-        "title": "Discount code"
-      }
+      "freeShipping": "Free"
     },
     "CartItem": {
       "discountedPrice": "Discounted Price",
@@ -87,9 +78,7 @@ declare const _default: {
       "lowInventory": "Only {count} left!",
       "insufficientQuantity": "Only {inventory} of {count} in stock",
       "insufficientQuantityGeneral": "Not enough items for sale",
-      "notAvailableMessage": "Requested qty. not available",
-      "discountPercentage": "{discount}% off",
-      "savingsAmount": "Savings"
+      "notAvailableMessage": "Requested qty. not available"
     },
     "EstimateShipping": {
       "label": "Shipping",

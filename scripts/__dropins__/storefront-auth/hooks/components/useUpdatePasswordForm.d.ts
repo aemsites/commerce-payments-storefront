@@ -12,6 +12,5 @@ export declare const useUpdatePasswordForm: ({ isEmailConfirmationRequired, sign
     isLoading: boolean;
     submitUpdatePassword: (event: Event) => Promise<void>;
     handleSetUpdatePasswordValue: (value: string) => void;
-    setIsClickSubmit: import('preact/hooks').Dispatch<import('preact/hooks').StateUpdater<boolean>>;
 };
 //# sourceMappingURL=useUpdatePasswordForm.d.ts.map

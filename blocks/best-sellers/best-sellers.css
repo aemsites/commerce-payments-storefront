@@ -1,0 +1,126 @@
+.best-sellers-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.best-sellers-wrapper {
+  display: grid;
+}
+
+.best-sellers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-medium);
+}
+
+.best-sellers .wide-card {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  align-items: stretch;
+  background-color: var(--color-neutral-200);
+  height: 100%;
+}
+
+.best-sellers .wide-card .card-image {
+  border: var(--shape-border-width-1) solid var(--color-neutral-200);
+  align-self: stretch;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 200px;
+}
+
+@media (width <= 768px) {
+  .best-sellers .wide-card {
+    background-color: var(--color-neutral-200);
+    height: 100%;
+  }
+
+  .best-sellers .wide-card .card-image {
+    width: 30%;
+  }
+}
+
+.best-sellers .wide-card .card-info {
+  background-color: var(--color-neutral-200);
+  box-sizing: border-box;
+  padding: var(--spacing-medium);
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.best-sellers .wide-card .card-info a {
+  text-decoration: none;
+}
+
+.best-sellers .wide-card .card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.best-sellers .wide-card .card-info h1,
+.best-sellers .wide-card .card-info h2,
+.best-sellers .wide-card .card-info h3,
+.best-sellers .wide-card .card-info h4,
+.best-sellers .wide-card .card-info h5,
+.best-sellers .wide-card .card-info h6 {
+  font:var(--type-headline-2-default-font);
+  letter-spacing: var(--type-headline-2-default-letter-spacing);
+  margin: 0;
+}
+
+
+.best-sellers .wide-card .card-info h2::after {
+  width: 75px;
+}
+
+.best-sellers .card-info p {
+  margin: var(--spacing-xsmall) 0;
+}
+
+.best-sellers .card-info .card-item-sku {
+  color: var(--color-brand-500);
+}
+
+@media (width <= 1024px) {
+  .best-sellers .wide-card .card-info p {
+    font: var(--type-body-1-default-font);
+    letter-spacing: var(--type-body-1-default-letter-spacing);
+  }
+}
+
+.best-sellers .card-info p.button-container {
+  margin-top: auto;
+  margin-bottom: 0;
+  text-align: end;
+}
+
+.best-sellers .card-info p.button-container a {
+  margin-bottom: 0;
+}
+
+.best-sellers .card-info .custom-link {
+  text-decoration: none;
+}
+
+.best-sellers .card-info .custom-link:hover {
+  color: inherit;
+}
+
+.best-sellers .card-info .custom-link::after {
+  content: ">";
+  transition: padding-left 0.3s;
+}
+
+
+@media (width <= 768px) {
+  .best-sellers {
+    flex-direction: column;
+  }
+
+  .best-sellers .wide-card {
+    flex-flow: row wrap;
+  }
+}

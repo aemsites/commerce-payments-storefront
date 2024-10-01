@@ -21,5 +21,4 @@ export * from './MiniCart';
 export * from './CartSummaryGrid';
 export * from './CartSummaryList';
 export * from './OrderSummary';
-export * from './Coupons';
 //# sourceMappingURL=index.d.ts.map

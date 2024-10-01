@@ -25,14 +25,8 @@ declare const mockEstimatedTotalsData: {
         }[];
     };
     estimatedGrandTotalPrice: {
-        excludingTax: {
-            amount: number;
-            currency: string;
-        };
-        includingTax: {
-            amount: number;
-            currency: string;
-        };
+        currency: string;
+        value: number;
     };
     estimatedItems: {
         price: {
@@ -75,74 +69,9 @@ declare const mockEstimatedTotalsData: {
         label: string;
     }[];
     estimatedTaxTotal: {
-        amount: number;
         currency: string;
+        value: number;
     };
 };
-declare const mockEstimatedTotalsDataZeroTotal: {
-    estimatedGrandTotalPrice: {
-        excludingTax: {
-            amount: number;
-            currency: string;
-        };
-        includingTax: {
-            amount: number;
-            currency: string;
-        };
-    };
-    estimatedAppliedTaxes: {
-        taxes: {
-            amount: {
-                currency: string;
-                value: number;
-            };
-            label: string;
-        }[];
-    };
-    estimatedItems: {
-        price: {
-            currency: string;
-            value: number;
-        };
-        rowTotal: {
-            currency: string;
-            value: number;
-        };
-        rowTotalIncludingTax: {
-            currency: string;
-            value: number;
-        };
-        taxedPrice: {
-            currency: string;
-            value: number;
-        };
-        uid: string;
-    }[];
-    estimatedSubtotal: {
-        excludingTax: {
-            currency: string;
-            value: number;
-        };
-        includingDiscountOnly: {
-            currency: string;
-            value: number;
-        };
-        includingTax: {
-            currency: string;
-            value: number;
-        };
-    };
-    appliedTaxes: {
-        amount: {
-            currency: string;
-            value: number;
-        };
-        label: string;
-    }[];
-    estimatedTaxTotal: {
-        amount: number;
-        currency: string;
-    };
-};
-export { mockEstimatedTotalsData, mockEstimatedTotalsDataZeroTotal };
+export { mockEstimatedTotalsData };
 //# sourceMappingURL=estimatedTotalsData.d.ts.map

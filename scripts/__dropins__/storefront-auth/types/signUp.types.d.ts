@@ -14,7 +14,6 @@ type DefaultSlotContext = {
     };
 };
 export interface SignUpProps {
-    requireRetypePassword?: boolean;
     addressesData?: AddressFormProps[];
     inputsDefaultValueSet?: inputsDefaultValueSetProps[];
     fieldsConfigForApiVersion1?: any;

@@ -1,7 +1,11 @@
-import { expectsEventWithContext } from "../../../assertions";
-
 const baselineContexts = (adobeDataLayer) => {
-  expectsEventWithContext(null, ['pageContext', 'storefrontInstanceContext', 'eventForwardingContext', 'shopperContext'], adobeDataLayer)
+  const pageContextIndex = adobeDataLayer.findIndex(event => !!event?.pageContext);
+  const storefrontInstanceContextIndex = adobeDataLayer.findIndex(event => !!event?.storefrontInstanceContext);
+  const eventForwardingContextIndex = adobeDataLayer.findIndex(event => !!event?.eventForwardingContext);
+
+  expect(pageContextIndex).to.be.greaterThan(-1);
+  expect(storefrontInstanceContextIndex).to.be.greaterThan(-1);
+  expect(eventForwardingContextIndex).to.be.greaterThan(-1);
 };
 
 it('has baseline contexts on homepage', () => {

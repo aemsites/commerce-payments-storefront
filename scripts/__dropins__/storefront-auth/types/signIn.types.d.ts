@@ -38,7 +38,7 @@ export interface useSignInFormProps extends Omit<SignInFormProps, 'formSize' | '
         text: string;
         status: '' | 'success' | 'error';
     };
-    translations: Record<string, string>;
+    translations: any;
 }
 export {};
 //# sourceMappingURL=signIn.types.d.ts.map

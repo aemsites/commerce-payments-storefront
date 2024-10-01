@@ -23,7 +23,7 @@ module.exports = defineConfig({
     specPattern: 'src/tests/**/*.spec.js',
   },
   env: {
-    graphqlEndPoint: 'https://mcstaging.aemshop.net/graphql',
+    graphqlEndPoint: 'https://integration-5ojmyuq-7yvbzwvtkgerq.us-4.magentosite.cloud/graphql',
   },
   reporter: 'cypress-multi-reporters',
   reporterOptions: {

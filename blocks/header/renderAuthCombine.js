@@ -9,11 +9,10 @@ import * as authApi from '@dropins/storefront-auth/api.js';
 import { events } from '@dropins/tools/event-bus.js';
 import { Button } from '@dropins/tools/components.js';
 import { getCookie } from '../../scripts/configs.js';
-import { CUSTOMER_ACCOUNT_PATH, CUSTOMER_FORGOTPASSWORD_PATH, CUSTOMER_LOGIN_PATH } from '../../scripts/constants.js';
 
 const signInFormConfig = {
   renderSignUpLink: true,
-  routeForgotPassword: () => CUSTOMER_FORGOTPASSWORD_PATH,
+  routeForgotPassword: () => '/customer/forgotpassword',
   slots: {
     SuccessNotification: (ctx) => {
       const userName = ctx?.isSuccessful?.userName || '';
@@ -33,7 +32,7 @@ const signInFormConfig = {
               children: 'My Account',
 
               onClick: () => {
-                window.location.href = CUSTOMER_ACCOUNT_PATH;
+                window.location.href = '/customer/account';
               },
             })(primaryBtn);
 
@@ -64,8 +63,8 @@ const signInFormConfig = {
 };
 
 const signUpFormConfig = {
-  routeSignIn: () => CUSTOMER_LOGIN_PATH,
-  routeRedirectOnSignIn: () => CUSTOMER_ACCOUNT_PATH,
+  routeSignIn: () => '/customer/login',
+  routeRedirectOnSignIn: () => '/customer/account',
   isAutoSignInEnabled: false,
   slots: {
     SuccessNotification: (ctx) => {
@@ -84,7 +83,7 @@ const signUpFormConfig = {
               children: 'Sign in',
 
               onClick: () => {
-                window.location.href = CUSTOMER_LOGIN_PATH;
+                window.location.href = '/customer/login';
               },
             })(primaryBtn);
 
@@ -114,7 +113,7 @@ const signUpFormConfig = {
 };
 
 const resetPasswordFormConfig = {
-  routeSignIn: () => CUSTOMER_LOGIN_PATH,
+  routeSignIn: () => '/customer/login',
 };
 
 const onHeaderLinkClick = () => {
@@ -122,7 +121,7 @@ const onHeaderLinkClick = () => {
   const originalViewportContent = viewportMeta.getAttribute('content');
 
   if (getCookie('auth_dropin_firstname')) {
-    window.location.href = CUSTOMER_ACCOUNT_PATH;
+    window.location.href = '/customer/account';
     return;
   }
   const signInModal = document.createElement('div');
@@ -170,13 +169,10 @@ const renderAuthCombine = (navSections) => {
 
   const navListEl = navSections.querySelector('.default-content-wrapper > ul');
 
-  const listItems = navListEl.querySelectorAll('.default-content-wrapper > ul > li');
-  const accountLi = Array.from(listItems).find((li) => li.textContent.includes('Account'));
-  const accountLiItems = accountLi.querySelectorAll('ul > li');
-  const authCombineLink = accountLiItems[accountLiItems.length - 1];
-
-  authCombineLink.classList.add('authCombineNavElement');
-  authCombineLink.addEventListener('click', () => {
+  const test = document.createElement('li');
+  test.classList.add('authCombineNavElement');
+  test.innerText = 'Combined Auth';
+  test.addEventListener('click', () => {
     onHeaderLinkClick();
 
     function getPopupElements() {
@@ -212,7 +208,7 @@ const renderAuthCombine = (navSections) => {
         popupMenuContainer.insertAdjacentHTML(
           'afterend',
           `<ul class="popupMenuUrlList">
-              <li><a href={CUSTOMER_ACCOUNT_PATH}>My Account</a></li>
+              <li><a href="/customer/account">My Account</a></li>
               <li><a href="/products/hollister-backyard-sweatshirt/MH05">Product page</a></li>
               <li><button class="logoutButton">Logout</button></li>
             </ul>`,
@@ -220,6 +216,8 @@ const renderAuthCombine = (navSections) => {
       }
     });
   });
+
+  navListEl.appendChild(test);
 };
 
 export default renderAuthCombine;

@@ -19,7 +19,6 @@ export interface StoreConfigModel {
     miniCartMaxItemsDisplay: number;
     cartExpiresInDays: number;
     cartSummaryDisplayTotal: number;
-    cartSummaryMaxItems: number;
     defaultCountry: string;
     categoryFixedProductTaxDisplaySetting: string;
     productFixedProductTaxDisplaySetting: string;

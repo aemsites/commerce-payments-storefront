@@ -7,7 +7,7 @@ export const assertCartSummaryProduct =
     totalPrice,
     productPosition
   ) =>
-    (elem = '.commerce-cart-wrapper') => {
+    (elem = '.commerce-cart-summary-wrapper') => {
       cy.get(`${elem} .dropin-cart-item__title`)
         .eq(productPosition)
         .should('contain', productName);
@@ -15,7 +15,7 @@ export const assertCartSummaryProduct =
         .eq(productPosition)
         .should('contain', productSku);
 
-      if (elem === '.commerce-cart-wrapper') {
+      if (elem === '.commerce-cart-summary-wrapper') {
         cy.get(`${elem} .dropin-incrementer__input`)
           .eq(productPosition)
           .should('have.value', productQty);
@@ -75,11 +75,10 @@ export const assertOrderSummaryMisc = (subtotal, shipping, total) => {
     .find('div[data-testid="estimate-shipping"]')
     .should('contain', 'Shipping')
     .and('contain', shipping);
-  // TODO:
-  // cy.get('.cart-order-summary__primary')
-  //   .find('div[data-testid="total-content"]')
-  //   .should('contain', 'Total')
-  //   .and('contain', total);
+  cy.get('.cart-order-summary__primary')
+    .find('div[data-testid="total-content"]')
+    .should('contain', 'Total')
+    .and('contain', total);
 };
 
 export const assertTitleHasLink =
@@ -149,8 +148,7 @@ export const assertOrderConfirmationBillingDetails = (customerAddress) => {
     .and('contain', customerAddress.street1)
     .and('contain', customerAddress.city)
     .and('contain', customerAddress.postCode)
-    // NewYork is displayed in app instead of New York
-    // .and('contain', customerAddress.regionFull)
+    .and('contain', customerAddress.regionFull)
     .and('contain', customerAddress.countryCode);
 };
 
@@ -165,10 +163,6 @@ export const assertOrderConfirmationShippingMethod = (
 export const assertAuthUser = (sign_up) => {
   cy.url().should('include', '/customer/account');
   cy.contains(sign_up.firstName).should("be.visible");
-  // TODO - Uncomment when https://jira.corp.adobe.com/browse/USF-1254 will be delivered to boilerplate
-  // cy.contains(sign_up.lastName).should("be.visible");
-  // cy.contains(sign_up.email).should("be.visible");
+  cy.contains(sign_up.lastName).should("be.visible");
+  cy.contains(sign_up.email).should("be.visible");
 };
-
-// imports and re-exports the functions from ./adobeDataLayer.js
-export * from './adobeDataLayer';

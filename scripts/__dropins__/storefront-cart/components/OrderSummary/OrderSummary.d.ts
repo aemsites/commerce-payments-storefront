@@ -17,7 +17,6 @@ export interface OrderSummaryProps extends Omit<HTMLAttributes<HTMLDivElement>, 
         label: string;
         price: VNode<HTMLAttributes<HTMLSpanElement>>;
         caption?: VNode<HTMLAttributes<HTMLDivElement>>;
-        coupon?: VNode<HTMLAttributes<HTMLSpanElement>>;
     }[];
     taxTotal?: {
         price: VNode<HTMLAttributes<HTMLSpanElement>>;
@@ -33,7 +32,6 @@ export interface OrderSummaryProps extends Omit<HTMLAttributes<HTMLDivElement>, 
         priceWithoutTax?: VNode<HTMLAttributes<HTMLSpanElement>>;
     };
     primaryAction?: VNode<HTMLAttributes<HTMLButtonElement>>;
-    coupons?: VNode<HTMLAttributes<HTMLDivElement>>;
 }
 export declare const OrderSummary: FunctionComponent<OrderSummaryProps>;
 //# sourceMappingURL=OrderSummary.d.ts.map

@@ -1,6 +1,6 @@
-export interface ResponseAttributesFormItemsProps {
+export interface getAttributesFormItems {
     code: string;
-    sort_order: string;
+    sort_order: number;
     default_value: null | string;
     entity_type: string;
     frontend_class: null | string;
@@ -15,13 +15,13 @@ export interface ResponseAttributesFormItemsProps {
         value: string;
     }[];
 }
-export interface GetAttributesFormResponse {
+export interface getAttributesFormResponse {
     data: {
         attributesForm: {
             errors?: {
                 message: string;
             }[];
-            items?: ResponseAttributesFormItemsProps[];
+            items?: getAttributesFormItems[];
         };
     };
     errors?: {

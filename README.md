@@ -5,8 +5,17 @@ This project boilerplate is for Edge Delivery Services projects that integrate w
 https://experienceleague.adobe.com/developer/commerce/storefront/
 
 ## Environments
-- Preview: https://main--{repo}--{owner}.aem.page/
-- Live: https://main--{repo}--{owner}.aem.live/
+
+- Preview: https://main--commerce-storefront--omiroshnichenko.hlx.page/
+- Live: https://main--commerce-storefront--omiroshnichenko.hlx.live/
+
+Additionally, you need to have the following modules and customizations installed on your environment:
+
+1. magento/magento-extra-graphql: Commerce module required for Cart and Checkout Drop-Ins.
+1. magento/module-data-services-graphql: Commerce module with functionality necessary for adding context to events.
+1. magento/module-page-builder-product-recommendations: Commerce module required for PRex Widget
+1. magento/module-visual-product-recommendations: Commerce module required for PRex Widget
+<!-- 1. TODO: Add further prereqs.  -->
 
 ## Pre-requisites
 
