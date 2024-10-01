@@ -5,14 +5,6 @@ declare const _default: {
         "label": "string"
       }
     },
-    "Pagination": {
-      "backwardButton": {
-        "ariaLabel": "Go to previous page"
-      },
-      "forwardButton": {
-        "ariaLabel": "Go to next page"
-      }
-    },
     "Incrementer": {
       "decreaseLabel": "Decrease Quantity",
       "increaseLabel": "Increase Quantity",
@@ -116,9 +108,6 @@ declare const _default: {
     "CartItem": {
       "each": {
         "label": "each"
-      },
-      "pricePerItem": {
-        "label": "price per item"
       },
       "quantity": {
         "label": "Quantity"

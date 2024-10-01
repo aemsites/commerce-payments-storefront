@@ -11,5 +11,4 @@ export * from './types';
 export * from './slot';
 export * from './vcomponent';
 export * from './image-params-keymap';
-export * from './is-number';
 //# sourceMappingURL=index.d.ts.map

@@ -14,8 +14,6 @@ import {
   refineProductQuery,
   setJsonLd,
   loadErrorPage,
-  variantsQuery,
-  mapProductAcdl,
 } from '../../scripts/commerce.js';
 import { readBlockConfig } from '../../scripts/aem.js';
 
@@ -42,17 +40,18 @@ async function setJsonLdProduct(product) {
   const amount = priceRange?.minimum?.final?.amount || price?.final?.amount;
   const brand = attributes.find((attr) => attr.name === 'brand');
 
-  // get variants
-  const { variants } = (await performCatalogServiceQuery(variantsQuery, { sku }))?.variants
-  || { variants: [] };
-
-  const ldJson = {
+  setJsonLd({
     '@context': 'http://schema.org',
     '@type': 'Product',
     name,
     description,
     image: images[0]?.url,
-    offers: [],
+    offers: [{
+      '@type': 'http://schema.org/Offer',
+      price: amount?.value,
+      priceCurrency: amount?.currency,
+      availability: inStock ? 'http://schema.org/InStock' : 'http://schema.org/OutOfStock',
+    }],
     productID: sku,
     brand: {
       '@type': 'Brand',
@@ -61,28 +60,7 @@ async function setJsonLdProduct(product) {
     url: new URL(`/products/${urlKey}/${sku}`, window.location),
     sku,
     '@id': new URL(`/products/${urlKey}/${sku}`, window.location),
-  };
-
-  if (variants.length > 1) {
-    ldJson.offers.push(...variants.map((variant) => ({
-      '@type': 'Offer',
-      name: variant.product.name,
-      image: variant.product.images[0]?.url,
-      price: variant.product.price.final.amount.value,
-      priceCurrency: variant.product.price.final.amount.currency,
-      availability: variant.product.inStock ? 'http://schema.org/InStock' : 'http://schema.org/OutOfStock',
-      sku: variant.product.sku,
-    })));
-  } else {
-    ldJson.offers.push({
-      '@type': 'Offer',
-      price: amount?.value,
-      priceCurrency: amount?.currency,
-      availability: inStock ? 'http://schema.org/InStock' : 'http://schema.org/OutOfStock',
-    });
-  }
-
-  setJsonLd(ldJson, 'product');
+  }, 'product');
 }
 
 class ProductDetailPage extends Component {
@@ -125,8 +103,14 @@ class ProductDetailPage extends Component {
   onAddToCart = async () => {
     if (Object.keys(this.state.selection).length === (this.state.product.options?.length || 0)) {
       const optionsUIDs = Object.values(this.state.selection).map((option) => option.id);
-      const { cartApi } = await import('../../scripts/minicart/api.js');
-      cartApi.addToCart(this.state.product.sku, optionsUIDs, this.state.selectedQuantity ?? 1, 'product-detail');
+      const values = [{
+        optionsUIDs,
+        quantity: this.state.selectedQuantity ?? 1,
+        sku: this.state.product.sku,
+      }];
+      const { addProductsToCart } = await import('@dropins/storefront-cart/api.js');
+      console.debug('onAddToCart', values, addProductsToCart);
+      addProductsToCart(values);
     }
   };
 
@@ -168,7 +152,10 @@ class ProductDetailPage extends Component {
       document.title = product.name;
       window.adobeDataLayer.push((dl) => {
         dl.push({
-          productContext: mapProductAcdl(product),
+          productContext: {
+            productId: parseInt(product.externalId, 10) || 0,
+            ...product,
+          },
         });
         // TODO: Remove eventInfo once collector is updated
         dl.push({ event: 'product-page-view', eventInfo: { ...dl.getState() } });
