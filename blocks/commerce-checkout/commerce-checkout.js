@@ -28,7 +28,9 @@ import PlaceOrder from '@dropins/storefront-checkout/containers/PlaceOrder.js';
 import ShippingForm from '@dropins/storefront-checkout/containers/ShippingForm.js';
 import ShippingMethods from '@dropins/storefront-checkout/containers/ShippingMethods.js';
 import { render as checkoutProvider } from '@dropins/storefront-checkout/render.js';
+/* eslint-disable import/no-unresolved */
 import HostedFields, { HOSTED_FIELDS_CODE } from '@dropins/payment-services/containers/HostedFields.js';
+/* eslint-disable import/no-unresolved */
 import { render as paymentServicesProvider } from '@dropins/payment-services/render.js';
 
 // Order Confirmation Dropin Modules
