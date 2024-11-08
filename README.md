@@ -6,8 +6,8 @@ https://experienceleague.adobe.com/developer/commerce/storefront/
 
 ## Environments
 
-- Preview: https://main--commerce-storefront--omiroshnichenko.hlx.page/
-- Live: https://main--commerce-storefront--omiroshnichenko.hlx.live/
+- Preview: https://main--commerce-payments-storefront--aemsites.aem.page
+- Live: https://main--commerce-payments-storefront--aemsites.aem.live
 
 Additionally, you need to have the following modules and customizations installed on your environment:
 
