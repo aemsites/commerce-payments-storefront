@@ -3,3 +3,5 @@ mountpoints:
 
 folders:
   /products/: /products/default
+
+# https://edge-stage-graph.adobe.io/api/1c1022ff-9dc6-4b38-8c2a-6a8e7b7cdd97/graphql
