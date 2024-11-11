@@ -45,10 +45,12 @@ export interface CartModel {
     isGuestCart?: boolean;
     hasOutOfStockItems?: boolean;
     hasFullyOutOfStockItems?: boolean;
+    appliedCoupons?: Coupon[];
 }
 interface TotalPriceModifier {
     amount: Price;
     label: string;
+    coupon?: Coupon;
 }
 export interface Item {
     taxedPrice: Price;
@@ -88,6 +90,9 @@ export interface Item {
     outOfStock?: boolean;
     notAvailableMessage?: string;
     stockLevel?: String;
+    discountPercentage?: number;
+    savingsAmount?: Price;
+    productAttributes?: Attribute[];
 }
 interface ItemError {
     id: string;
@@ -108,6 +113,18 @@ interface ItemURL {
 interface ItemLinks {
     count: number;
     result: string;
+}
+interface AttributeOption {
+    value: string;
+    label: string;
+}
+interface Attribute {
+    code: string;
+    value?: string;
+    selected_options?: AttributeOption[];
+}
+interface Coupon {
+    code: string;
 }
 export {};
 //# sourceMappingURL=cart-model.d.ts.map
