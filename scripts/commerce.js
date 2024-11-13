@@ -166,7 +166,8 @@ export function getSignInToken() {
 }
 
 export async function performMonolithGraphQLQuery(query, variables, GET = true, USE_TOKEN = false) {
-  const GRAPHQL_ENDPOINT = await getConfigValue('commerce-core-endpoint');
+  //const GRAPHQL_ENDPOINT = await getConfigValue('commerce-core-endpoint');
+  const GRAPHQL_ENDPOINT = 'https://main-bvxea6i-aa4y6fsnbkaa4.us-4.magentosite.cloud/graphql';
 
   const headers = {
     'Content-Type': 'application/json',

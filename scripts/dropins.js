@@ -66,7 +66,8 @@ export default async function initializeDropins() {
     // Event Bus Logger
     events.enableLogger(true);
     // Set Fetch Endpoint (Global)
-    setEndpoint(await getConfigValue('commerce-core-endpoint'));
+    //setEndpoint(await getConfigValue('commerce-core-endpoint'));
+    setEndpoint('https://main-bvxea6i-aa4y6fsnbkaa4.us-4.magentosite.cloud/graphql');
     // Recaptcha
     recaptcha.setConfig();
     // Mount all registered drop-ins

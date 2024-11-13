@@ -63,7 +63,6 @@ import { getUserTokenCookie } from '../../scripts/initializers/index.js';
 // Payment Services Dropin
 import HostedFields, { HOSTED_FIELDS_CODE } from '@dropins/payment-services/containers/HostedFields.js';
 import { render as paymentServicesProvider } from '@dropins/payment-services/render.js';
-import { getConfigValue } from '../../scripts/configs.js';
 
 // Block-level
 import createModal from '../modal/modal.js';
@@ -187,7 +186,9 @@ export default async function decorate(block) {
     modal = null;
   };
 
-  const apiUrl = await getConfigValue('commerce-core-endpoint');
+  //const apiUrl = await getConfigValue('commerce-core-endpoint');
+  const apiUrl = 'https://main-bvxea6i-aa4y6fsnbkaa4.us-4.magentosite.cloud/graphql';
+  let paymentServicesSubmit;
 
   const [
     _mergedCartBanner,
@@ -283,16 +284,12 @@ export default async function decorate(block) {
     CheckoutProvider.render(PaymentMethods, {
       slots: {
         Handlers: {
-          foo: (_ctx) => {
-            const $content = document.createElement('div');
-            $content.innerText = 'foo';
-            _ctx.replaceHTML($content);
-          },
           checkmo: (_ctx) => {
             const $content = document.createElement('div');
             $content.innerText = 'checkmo';
             _ctx.replaceHTML($content);
           },
+          // Render Payment Services Dropin
           [HOSTED_FIELDS_CODE]: (_ctx) => {
             const $content = document.createElement('div');
             $content.innerText = HOSTED_FIELDS_CODE;
@@ -300,7 +297,21 @@ export default async function decorate(block) {
             paymentServicesProvider.render(HostedFields, {
               location: 'CHECKOUT',
               graphqlUrl: apiUrl,
-              cartId: _ctx.id,
+              getCustomerToken: getUserTokenCookie,
+              getCartId: () => _ctx.cartId,
+              setSubmit: (submit) => {
+                console.log('HostedFields onPlaceOrder');
+                paymentServicesSubmit = submit;
+              },
+              onStart: () => {
+                console.log('HostedFields onStart');
+              },
+              onError: (error) => {
+                console.error('HostedFields onError', error);
+              },
+              onSuccess: async () => {
+                console.log('HostedFields onSuccess');
+              },
             })($content);
           },
         },
@@ -398,8 +409,12 @@ export default async function decorate(block) {
       },
       onPlaceOrder: async () => {
         displayOverlaySpinner();
-
         try {
+          console.log('PlaceOrder onPlaceOrder');
+          if (paymentServicesSubmit !== undefined) {
+            await paymentServicesSubmit();
+          }
+
           await checkoutApi.placeOrder();
         } catch (error) {
           console.error(error);
@@ -749,7 +764,11 @@ export default async function decorate(block) {
       $orderStatus,
     );
     OrderProvider.render(ShippingStatus)($shippingStatus);
-    OrderProvider.render(CustomerDetails)($customerDetails);
+    OrderProvider.render(CustomerDetails, {
+      paymentIconsMap: {
+        payment_services_paypal_hosted_fields: 'Delivery',
+      },
+    })($customerDetails);
     OrderProvider.render(OrderCostSummary)($orderCostSummary);
     OrderProvider.render(OrderProductList)($orderProductList);
 
