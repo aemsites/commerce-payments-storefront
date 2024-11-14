@@ -299,6 +299,14 @@ export default async function decorate(block) {
               graphqlUrl: apiUrl,
               getCustomerToken: getUserTokenCookie,
               getCartId: () => _ctx.cartId,
+              onValidityChange: ((fields, emittedBy) => {
+                const isValid = fields.number.isValid
+                  && fields.cvv.isValid
+                  && fields.expirationDate.isValid;
+                const placeOrderButton = document.querySelector('.checkout__place-order button');
+                placeOrderButton.disabled = !isValid;
+                placeOrderButton.classList.toggle('dropin-button--primary--disabled', !isValid);
+              }),
               setSubmit: (submit) => {
                 console.log('HostedFields onPlaceOrder');
                 paymentServicesSubmit = submit;
