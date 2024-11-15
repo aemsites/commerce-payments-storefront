@@ -306,6 +306,27 @@ export default async function decorate(block) {
                 const placeOrderButton = document.querySelector('.checkout__place-order button');
                 placeOrderButton.disabled = !isValid;
                 placeOrderButton.classList.toggle('dropin-button--primary--disabled', !isValid);
+
+                const fieldState = fields[emittedBy];
+                let msg = '';
+
+                if (!fieldState.isValid) {
+                  // eslint-disable-next-line default-case
+                  switch (emittedBy) {
+                    case 'expirationDate':
+                      msg = fieldState.isEmpty ? 'This is required field.' : 'Enter valid expiration date.';
+                      break;
+                    case 'cvv':
+                      msg = fieldState.isEmpty ? 'This is required field.' : 'Enter valid cvv.';
+                      break;
+                    case 'number':
+                      msg = fieldState.isEmpty ? 'This is required field.' : 'Enter valid card number.';
+                      break;
+                  }
+                }
+
+                const errorContainer = document.getElementById(`${emittedBy}-error`);
+                errorContainer.innerHTML = msg;
               }),
               setSubmit: (submit) => {
                 console.log('HostedFields onPlaceOrder');
