@@ -306,6 +306,22 @@ export default async function decorate(block) {
               apiUrl,
               getCustomerToken: getUserTokenCookie,
               getCartId: () => _ctx.cartId,
+              onCardTypeChange: (cardTypes) => {
+                document.getElementById('eligible-cards').childNodes.forEach((card) => {
+                  card.classList.remove('elsie-credit-card-form__eligible-cards-selected');
+                  card.classList.add('elsie-credit-card-form__eligible-cards-unselected');
+                });
+
+                if (cardTypes.length === 0) {
+                  return;
+                }
+                const card = document.getElementById(`elsie-credit-card-form__eligible-cards-${cardTypes[0].code}`);
+                if (!card) {
+                  return;
+                }
+                card.classList.remove('elsie-credit-card-form__eligible-cards-unselected');
+                card.classList.add('elsie-credit-card-form__eligible-cards-selected');
+              },
               onValidityChange: ((fields, emittedBy) => {
                 const isValid = fields.number.isValid
                   && fields.cvv.isValid
