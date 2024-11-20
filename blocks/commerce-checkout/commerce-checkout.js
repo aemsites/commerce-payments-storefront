@@ -37,11 +37,13 @@ import { render as CartProvider } from '@dropins/storefront-cart/render.js';
 
 // Checkout Dropin
 import * as checkoutApi from '@dropins/storefront-checkout/api.js';
-import BillToShippingAddress from '@dropins/storefront-checkout/containers/BillToShippingAddress.js';
+import BillToShippingAddress
+  from '@dropins/storefront-checkout/containers/BillToShippingAddress.js';
 import EstimateShipping from '@dropins/storefront-checkout/containers/EstimateShipping.js';
 import LoginForm from '@dropins/storefront-checkout/containers/LoginForm.js';
 import MergedCartBanner from '@dropins/storefront-checkout/containers/MergedCartBanner.js';
-import OrderConfirmationHeader from '@dropins/storefront-checkout/containers/OrderConfirmationHeader.js';
+import OrderConfirmationHeader
+  from '@dropins/storefront-checkout/containers/OrderConfirmationHeader.js';
 import OutOfStock from '@dropins/storefront-checkout/containers/OutOfStock.js';
 import PaymentMethods from '@dropins/storefront-checkout/containers/PaymentMethods.js';
 import PlaceOrder from '@dropins/storefront-checkout/containers/PlaceOrder.js';
@@ -58,11 +60,11 @@ import OrderProductList from '@dropins/storefront-order/containers/OrderProductL
 import OrderStatus from '@dropins/storefront-order/containers/OrderStatus.js';
 import ShippingStatus from '@dropins/storefront-order/containers/ShippingStatus.js';
 import { render as OrderProvider } from '@dropins/storefront-order/render.js';
-import { getUserTokenCookie } from '../../scripts/initializers/index.js';
 
 // Payment Services Dropin
 import CreditCard, { CREDIT_CARD_CODE } from '@dropins/payment-services/containers/CreditCard.js';
 import { render as paymentServicesProvider } from '@dropins/payment-services/render.js';
+import { getUserTokenCookie } from '../../scripts/initializers/index.js';
 
 // Block-level
 import createModal from '../modal/modal.js';
@@ -89,7 +91,8 @@ export default async function decorate(block) {
   const storeConfig = await checkoutApi.getStoreConfig();
 
   // Define the Layout for the Checkout
-  const checkoutFragment = document.createRange().createContextualFragment(`
+  const checkoutFragment = document.createRange()
+    .createContextualFragment(`
     <div class="checkout__wrapper">
       <div class="checkout__loader"></div>
       <div class="checkout__banners">
@@ -185,9 +188,6 @@ export default async function decorate(block) {
     modal.removeModal();
     modal = null;
   };
-
-  //const apiUrl = await getConfigValue('commerce-core-endpoint');
-  //const apiUrl = 'https://main-bvxea6i-aa4y6fsnbkaa4.us-4.magentosite.cloud/graphql';
   const apiUrl = 'https://magento.test/graphql';
 
   let paymentServicesSubmit;
@@ -227,7 +227,8 @@ export default async function decorate(block) {
     CheckoutProvider.render(OutOfStock, {
       routeCart: () => '/cart',
       onCartProductsUpdate: (items) => {
-        cartApi.updateProductsFromCart(items).catch(console.error);
+        cartApi.updateProductsFromCart(items)
+          .catch(console.error);
       },
     })($outOfStock),
 
@@ -269,7 +270,10 @@ export default async function decorate(block) {
           const isDataValid = billingFormRef.current.handleValidationSubmit();
 
           setAddressOnCart(
-            { data: billingFormRef.current.formData, isDataValid },
+            {
+              data: billingFormRef.current.formData,
+              isDataValid,
+            },
             checkoutApi.setBillingAddress,
           );
         }
@@ -279,7 +283,8 @@ export default async function decorate(block) {
     CheckoutProvider.render(ShippingMethods, {
       hideOnVirtualCart: true,
       onCheckoutDataUpdate: () => {
-        cartApi.refreshCart().catch(console.error);
+        cartApi.refreshCart()
+          .catch(console.error);
       },
     })($delivery),
 
@@ -331,17 +336,13 @@ export default async function decorate(block) {
                 errorContainer.innerHTML = msg;
               }),
               setSubmit: (submit) => {
-                console.log('HostedFields onPlaceOrder');
                 paymentServicesSubmit = submit;
               },
               onStart: () => {
-                console.log('HostedFields onStart');
               },
               onError: (error) => {
-                console.error('HostedFields onError', error);
               },
               onSuccess: async () => {
-                console.log('HostedFields onSuccess');
               },
             })($content);
           },
@@ -441,7 +442,6 @@ export default async function decorate(block) {
       onPlaceOrder: async () => {
         displayOverlaySpinner();
         try {
-          console.log('PlaceOrder onPlaceOrder');
           if (paymentServicesSubmit !== undefined) {
             await paymentServicesSubmit();
           }
@@ -526,7 +526,10 @@ export default async function decorate(block) {
             setAddressOnCart(values, checkoutApi.setShippingAddress);
           }
 
-          const { data, isDataValid } = values;
+          const {
+            data,
+            isDataValid,
+          } = values;
 
           if (isFirstRenderShipping) isFirstRenderShipping = false;
 
@@ -774,7 +777,10 @@ export default async function decorate(block) {
 
     block.replaceChildren(orderConfirmationFragment);
 
-    const onSignUpClick = async ({ inputsDefaultValueSet, addressesData }) => {
+    const onSignUpClick = async ({
+      inputsDefaultValueSet,
+      addressesData,
+    }) => {
       const signUpForm = document.createElement('div');
       AuthProvider.render(SignUp, {
         routeSignIn: () => '/customer/login',
