@@ -32,8 +32,7 @@ import { render as AccountProvider } from '@dropins/storefront-account/render.js
 import * as cartApi from '@dropins/storefront-cart/api.js';
 import CartSummaryList from '@dropins/storefront-cart/containers/CartSummaryList.js';
 import EmptyCart from '@dropins/storefront-cart/containers/EmptyCart.js';
-import OrderSummary from '@dropins/storefront-cart/containers/OrderSummary.js';
-import Coupons from '@dropins/storefront-cart/containers/Coupons.js';
+import { OrderSummary } from '@dropins/storefront-cart/containers/OrderSummary.js';
 import { render as CartProvider } from '@dropins/storefront-cart/render.js';
 
 // Checkout Dropin
@@ -60,6 +59,10 @@ import OrderStatus from '@dropins/storefront-order/containers/OrderStatus.js';
 import ShippingStatus from '@dropins/storefront-order/containers/ShippingStatus.js';
 import { render as OrderProvider } from '@dropins/storefront-order/render.js';
 import { getUserTokenCookie } from '../../scripts/initializers/index.js';
+
+// Payment Services Dropin
+import CreditCard, { CREDIT_CARD_CODE } from '@dropins/payment-services/containers/CreditCard.js';
+import { render as paymentServicesProvider } from '@dropins/payment-services/render.js';
 
 // Block-level
 import createModal from '../modal/modal.js';
@@ -89,7 +92,9 @@ export default async function decorate(block) {
   const checkoutFragment = document.createRange().createContextualFragment(`
     <div class="checkout__wrapper">
       <div class="checkout__loader"></div>
-      <div class="checkout__merged-cart-banner"></div>
+      <div class="checkout__banners">
+        <div class="checkout__merged-cart-banner"></div>
+      </div>
       <div class="checkout__content">
         <div class="checkout__main">
           <div class="checkout__block checkout__heading"></div>
@@ -104,20 +109,20 @@ export default async function decorate(block) {
           <div class="checkout__block checkout__billing-form"></div>
         </div>
         <div class="checkout__aside">
-          <div class="checkout__block checkout__order-summary"></div>
-          <div class="checkout__block checkout__cart-summary"></div>
+          <div class="checkout__block checkout__block--aside checkout__order-summary"></div>
+          <div class="checkout__block checkout__block--aside checkout__cart-summary"></div>
         </div>
-        <div class="checkout__block checkout__place-order"></div>
+        <div class="checkout__place-order"></div>
       </div>
     </div>
   `);
 
-  const $content = checkoutFragment.querySelector('.checkout__content');
-  const $loader = checkoutFragment.querySelector('.checkout__loader');
   const $mergedCartBanner = checkoutFragment.querySelector(
     '.checkout__merged-cart-banner',
   );
 
+  const $content = checkoutFragment.querySelector('.checkout__content');
+  const $loader = checkoutFragment.querySelector('.checkout__loader');
   const $heading = checkoutFragment.querySelector('.checkout__heading');
   const $emptyCart = checkoutFragment.querySelector('.checkout__empty-cart');
   const $serverError = checkoutFragment.querySelector(
@@ -180,6 +185,12 @@ export default async function decorate(block) {
     modal.removeModal();
     modal = null;
   };
+
+  //const apiUrl = await getConfigValue('commerce-core-endpoint');
+  //const apiUrl = 'https://main-bvxea6i-aa4y6fsnbkaa4.us-4.magentosite.cloud/graphql';
+  const apiUrl = 'https://magento.test/graphql';
+
+  let paymentServicesSubmit;
 
   const [
     _mergedCartBanner,
@@ -253,11 +264,12 @@ export default async function decorate(block) {
       hideOnVirtualCart: true,
       onChange: (checked) => {
         $billingForm.style.display = checked ? 'none' : 'block';
-        if (!checked && billingFormRef?.current) {
-          const { formData, isDataValid } = billingFormRef.current;
+
+        if (!checked && billingFormRef.current) {
+          const isDataValid = billingFormRef.current.handleValidationSubmit();
 
           setAddressOnCart(
-            { data: formData, isDataValid },
+            { data: billingFormRef.current.formData, isDataValid },
             checkoutApi.setBillingAddress,
           );
         }
@@ -271,7 +283,71 @@ export default async function decorate(block) {
       },
     })($delivery),
 
-    CheckoutProvider.render(PaymentMethods)($paymentMethods),
+    CheckoutProvider.render(PaymentMethods, {
+      slots: {
+        Handlers: {
+          checkmo: (_ctx) => {
+            const $content = document.createElement('div');
+            $content.innerText = 'checkmo';
+            _ctx.replaceHTML($content);
+          },
+          // Render Payment Services Dropin
+          [CREDIT_CARD_CODE]: (_ctx) => {
+            const $content = document.createElement('div');
+            $content.innerText = CREDIT_CARD_CODE;
+            _ctx.replaceHTML($content);
+            paymentServicesProvider.render(CreditCard, {
+              location: 'CHECKOUT',
+              apiUrl,
+              getCustomerToken: getUserTokenCookie,
+              getCartId: () => _ctx.cartId,
+              onValidityChange: ((fields, emittedBy) => {
+                const isValid = fields.number.isValid
+                  && fields.cvv.isValid
+                  && fields.expirationDate.isValid;
+                const placeOrderButton = document.querySelector('.checkout__place-order button');
+                placeOrderButton.disabled = !isValid;
+                placeOrderButton.classList.toggle('dropin-button--primary--disabled', !isValid);
+
+                const fieldState = fields[emittedBy];
+                let msg = '';
+
+                if (!fieldState.isValid) {
+                  // eslint-disable-next-line default-case
+                  switch (emittedBy) {
+                    case 'expirationDate':
+                      msg = fieldState.isEmpty ? 'This is required field.' : 'Enter valid expiration date.';
+                      break;
+                    case 'cvv':
+                      msg = fieldState.isEmpty ? 'This is required field.' : 'Enter valid cvv.';
+                      break;
+                    case 'number':
+                      msg = fieldState.isEmpty ? 'This is required field.' : 'Enter valid card number.';
+                      break;
+                  }
+                }
+
+                const errorContainer = document.getElementById(`${emittedBy}-error`);
+                errorContainer.innerHTML = msg;
+              }),
+              setSubmit: (submit) => {
+                console.log('HostedFields onPlaceOrder');
+                paymentServicesSubmit = submit;
+              },
+              onStart: () => {
+                console.log('HostedFields onStart');
+              },
+              onError: (error) => {
+                console.error('HostedFields onError', error);
+              },
+              onSuccess: async () => {
+                console.log('HostedFields onSuccess');
+              },
+            })($content);
+          },
+        },
+      },
+    })($paymentMethods),
 
     AccountProvider.render(AddressForm, {
       isOpen: true,
@@ -284,13 +360,6 @@ export default async function decorate(block) {
           const estimateShippingForm = document.createElement('div');
           CheckoutProvider.render(EstimateShipping)(estimateShippingForm);
           esCtx.appendChild(estimateShippingForm);
-        },
-        Coupons: (ctx) => {
-          const coupons = document.createElement('div');
-
-          CartProvider.render(Coupons)(coupons);
-
-          ctx.appendChild(coupons);
         },
       },
     })($orderSummary),
@@ -370,15 +439,19 @@ export default async function decorate(block) {
         return success;
       },
       onPlaceOrder: async () => {
-        await displayOverlaySpinner();
-
+        displayOverlaySpinner();
         try {
+          console.log('PlaceOrder onPlaceOrder');
+          if (paymentServicesSubmit !== undefined) {
+            await paymentServicesSubmit();
+          }
+
           await checkoutApi.placeOrder();
         } catch (error) {
           console.error(error);
           throw error;
         } finally {
-          await removeOverlaySpinner();
+          removeOverlaySpinner();
         }
       },
     })($placeOrder),
@@ -722,7 +795,11 @@ export default async function decorate(block) {
       $orderStatus,
     );
     OrderProvider.render(ShippingStatus)($shippingStatus);
-    OrderProvider.render(CustomerDetails)($customerDetails);
+    OrderProvider.render(CustomerDetails, {
+      paymentIconsMap: {
+        payment_services_paypal_hosted_fields: 'Delivery',
+      },
+    })($customerDetails);
     OrderProvider.render(OrderCostSummary)($orderCostSummary);
     OrderProvider.render(OrderProductList)($orderProductList);
 
@@ -783,7 +860,7 @@ export default async function decorate(block) {
     if (data.isGuest) {
       await displayGuestAddressForms(data);
     } else {
-      await removeOverlaySpinner();
+      removeOverlaySpinner();
       await displayCustomerAddressForms(data);
     }
   };
