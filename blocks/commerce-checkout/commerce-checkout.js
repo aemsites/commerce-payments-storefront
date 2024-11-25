@@ -307,6 +307,8 @@ export default async function decorate(block) {
               getCustomerToken: getUserTokenCookie,
               getCartId: () => _ctx.cartId,
               onFormValidityChange: (isValid) => {
+                //@todo uncomment this after update "@dropins/storefront-checkout": "0.1.0-alpha57"
+                //placeOrder.setProps(() => ({ disabled: true }));
                 const placeOrderButton = document.querySelector('.checkout__place-order button');
                 placeOrderButton.disabled = !isValid;
                 placeOrderButton.classList.toggle('dropin-button--primary--disabled', !isValid);
