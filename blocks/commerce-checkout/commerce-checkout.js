@@ -7,7 +7,6 @@
 // Dropin Tools
 import { events } from '@dropins/tools/event-bus.js';
 import { initializers } from '@dropins/tools/initializer.js';
-import { debounce } from '@dropins/tools/lib.js';
 
 // Dropin Components
 import {
@@ -32,18 +31,17 @@ import { render as AccountProvider } from '@dropins/storefront-account/render.js
 import * as cartApi from '@dropins/storefront-cart/api.js';
 import CartSummaryList from '@dropins/storefront-cart/containers/CartSummaryList.js';
 import EmptyCart from '@dropins/storefront-cart/containers/EmptyCart.js';
-import { OrderSummary } from '@dropins/storefront-cart/containers/OrderSummary.js';
+import OrderSummary from '@dropins/storefront-cart/containers/OrderSummary.js';
+import Coupons from '@dropins/storefront-cart/containers/Coupons.js';
 import { render as CartProvider } from '@dropins/storefront-cart/render.js';
 
 // Checkout Dropin
 import * as checkoutApi from '@dropins/storefront-checkout/api.js';
-import BillToShippingAddress
-  from '@dropins/storefront-checkout/containers/BillToShippingAddress.js';
+import BillToShippingAddress from '@dropins/storefront-checkout/containers/BillToShippingAddress.js';
 import EstimateShipping from '@dropins/storefront-checkout/containers/EstimateShipping.js';
 import LoginForm from '@dropins/storefront-checkout/containers/LoginForm.js';
 import MergedCartBanner from '@dropins/storefront-checkout/containers/MergedCartBanner.js';
-import OrderConfirmationHeader
-  from '@dropins/storefront-checkout/containers/OrderConfirmationHeader.js';
+import OrderConfirmationHeader from '@dropins/storefront-checkout/containers/OrderConfirmationHeader.js';
 import OutOfStock from '@dropins/storefront-checkout/containers/OutOfStock.js';
 import PaymentMethods from '@dropins/storefront-checkout/containers/PaymentMethods.js';
 import PlaceOrder from '@dropins/storefront-checkout/containers/PlaceOrder.js';
@@ -70,15 +68,56 @@ import { getUserTokenCookie } from '../../scripts/initializers/index.js';
 import createModal from '../modal/modal.js';
 
 import {
-  getCartAddress,
+  estimateShippingCost, getCartAddress,
   scrollToElement,
   setAddressOnCart,
 } from '../../scripts/checkout.js';
+
+function createMetaTag(property, content, type) {
+  if (!property || !type) {
+    return;
+  }
+  let meta = document.head.querySelector(`meta[${type}="${property}"]`);
+  if (meta) {
+    if (!content) {
+      meta.remove();
+      return;
+    }
+    meta.setAttribute(type, property);
+    meta.setAttribute('content', content);
+    return;
+  }
+  if (!content) {
+    return;
+  }
+  meta = document.createElement('meta');
+  meta.setAttribute(type, property);
+  meta.setAttribute('content', content);
+  document.head.appendChild(meta);
+}
+
+function setMetaTags(dropin) {
+  createMetaTag('title', dropin);
+  createMetaTag('description', dropin);
+  createMetaTag('keywords', dropin);
+
+  createMetaTag('og:description', dropin);
+  createMetaTag('og:title', dropin);
+  createMetaTag('og:url', window.location.href, 'property');
+}
 
 export default async function decorate(block) {
   // Initializers
   import('../../scripts/initializers/account.js');
   import('../../scripts/initializers/checkout.js');
+
+  setMetaTags('Checkout');
+  document.title = 'Checkout';
+
+  events.on('checkout/order', () => {
+    setMetaTags('Order Confirmation');
+    document.title = 'Order Confirmation';
+  });
 
   const DEBOUNCE_TIME = 1000;
   const LOGIN_FORM_NAME = 'login-form';
@@ -91,13 +130,10 @@ export default async function decorate(block) {
   const storeConfig = await checkoutApi.getStoreConfig();
 
   // Define the Layout for the Checkout
-  const checkoutFragment = document.createRange()
-    .createContextualFragment(`
+  const checkoutFragment = document.createRange().createContextualFragment(`
     <div class="checkout__wrapper">
       <div class="checkout__loader"></div>
-      <div class="checkout__banners">
-        <div class="checkout__merged-cart-banner"></div>
-      </div>
+      <div class="checkout__merged-cart-banner"></div>
       <div class="checkout__content">
         <div class="checkout__main">
           <div class="checkout__block checkout__heading"></div>
@@ -112,20 +148,20 @@ export default async function decorate(block) {
           <div class="checkout__block checkout__billing-form"></div>
         </div>
         <div class="checkout__aside">
-          <div class="checkout__block checkout__block--aside checkout__order-summary"></div>
-          <div class="checkout__block checkout__block--aside checkout__cart-summary"></div>
+          <div class="checkout__block checkout__order-summary"></div>
+          <div class="checkout__block checkout__cart-summary"></div>
         </div>
-        <div class="checkout__place-order"></div>
+        <div class="checkout__block checkout__place-order"></div>
       </div>
     </div>
   `);
 
+  const $content = checkoutFragment.querySelector('.checkout__content');
+  const $loader = checkoutFragment.querySelector('.checkout__loader');
   const $mergedCartBanner = checkoutFragment.querySelector(
     '.checkout__merged-cart-banner',
   );
 
-  const $content = checkoutFragment.querySelector('.checkout__content');
-  const $loader = checkoutFragment.querySelector('.checkout__loader');
   const $heading = checkoutFragment.querySelector('.checkout__heading');
   const $emptyCart = checkoutFragment.querySelector('.checkout__empty-cart');
   const $serverError = checkoutFragment.querySelector(
@@ -209,7 +245,7 @@ export default async function decorate(block) {
     billingFormSkeleton,
     _orderSummary,
     _cartSummary,
-    _placeOrder,
+    placeOrder,
   ] = await Promise.all([
     CheckoutProvider.render(MergedCartBanner)($mergedCartBanner),
 
@@ -231,8 +267,7 @@ export default async function decorate(block) {
     CheckoutProvider.render(OutOfStock, {
       routeCart: () => '/cart',
       onCartProductsUpdate: (items) => {
-        cartApi.updateProductsFromCart(items)
-          .catch(console.error);
+        cartApi.updateProductsFromCart(items).catch(console.error);
       },
     })($outOfStock),
 
@@ -269,15 +304,11 @@ export default async function decorate(block) {
       hideOnVirtualCart: true,
       onChange: (checked) => {
         $billingForm.style.display = checked ? 'none' : 'block';
-
-        if (!checked && billingFormRef.current) {
-          const isDataValid = billingFormRef.current.handleValidationSubmit();
+        if (!checked && billingFormRef?.current) {
+          const { formData, isDataValid } = billingFormRef.current;
 
           setAddressOnCart(
-            {
-              data: billingFormRef.current.formData,
-              isDataValid,
-            },
+            { data: formData, isDataValid },
             checkoutApi.setBillingAddress,
           );
         }
@@ -287,8 +318,7 @@ export default async function decorate(block) {
     CheckoutProvider.render(ShippingMethods, {
       hideOnVirtualCart: true,
       onCheckoutDataUpdate: () => {
-        cartApi.refreshCart()
-          .catch(console.error);
+        cartApi.refreshCart().catch(console.error);
       },
     })($delivery),
 
@@ -343,6 +373,13 @@ export default async function decorate(block) {
           const estimateShippingForm = document.createElement('div');
           CheckoutProvider.render(EstimateShipping)(estimateShippingForm);
           esCtx.appendChild(estimateShippingForm);
+        },
+        Coupons: (ctx) => {
+          const coupons = document.createElement('div');
+
+          CartProvider.render(Coupons)(coupons);
+
+          ctx.appendChild(coupons);
         },
       },
     })($orderSummary),
@@ -422,7 +459,8 @@ export default async function decorate(block) {
         return success;
       },
       onPlaceOrder: async () => {
-        displayOverlaySpinner();
+        await displayOverlaySpinner();
+
         try {
           if (paymentServicesSubmit !== undefined) {
             await paymentServicesSubmit();
@@ -433,7 +471,7 @@ export default async function decorate(block) {
           console.error(error);
           throw error;
         } finally {
-          removeOverlaySpinner();
+          await removeOverlaySpinner();
         }
       },
     })($placeOrder),
@@ -478,21 +516,22 @@ export default async function decorate(block) {
         sessionStorage.removeItem(SHIPPING_ADDRESS_DATA_KEY);
       }
 
-      // when shipping address form is empty
-      if (!cartShippingAddress) {
-        checkoutApi.estimateShippingMethods();
-
-        events.emit('checkout/estimate-shipping-address', {
-          address: {},
-          isValid: false,
-        });
-      }
-
       shippingFormSkeleton.remove();
 
-      let prevEstimateShippingData = {};
       let isFirstRenderShipping = true;
       const hasCartShippingAddress = Boolean(data.shippingAddresses?.[0]);
+
+      const setShippingAddressOnCart = setAddressOnCart({
+        api: checkoutApi.setShippingAddress,
+        debounceMs: DEBOUNCE_TIME,
+        placeOrderBtn: placeOrder,
+      });
+
+      const estimateShippingCostOnCart = estimateShippingCost({
+        api: checkoutApi.estimateShippingMethods,
+        debounceMs: DEBOUNCE_TIME,
+      });
+
       shippingForm = await AccountProvider.render(AddressForm, {
         addressesFormTitle: 'Shipping address',
         className: 'checkout-shipping-form__address-form',
@@ -503,53 +542,12 @@ export default async function decorate(block) {
           countryCode: storeConfig.defaultCountry,
         },
         isOpen: true,
-        onChange: debounce((values) => {
-          if (!isFirstRenderShipping || !hasCartShippingAddress) {
-            setAddressOnCart(values, checkoutApi.setShippingAddress);
-          }
-
-          const {
-            data,
-            isDataValid,
-          } = values;
-
+        onChange: (values) => {
+          const syncAddress = !isFirstRenderShipping || !hasCartShippingAddress;
+          if (syncAddress) setShippingAddressOnCart(values);
+          if (!hasCartShippingAddress) estimateShippingCostOnCart(values);
           if (isFirstRenderShipping) isFirstRenderShipping = false;
-
-          if (hasCartShippingAddress || isDataValid) return;
-
-          if (
-            prevEstimateShippingData.countryCode === data.countryCode
-            && prevEstimateShippingData.regionCode === data.region.regionCode
-            && prevEstimateShippingData.regionId === data.region.regionId
-            && prevEstimateShippingData.postcode === data.postcode
-          ) {
-            return;
-          }
-
-          const criteria = {
-            country_code: data.countryCode,
-            region_name: String(data.region.regionCode || ''),
-            region_id: String(data.region.regionId || ''),
-          };
-          checkoutApi.estimateShippingMethods({ criteria });
-
-          events.emit('checkout/estimate-shipping-address', {
-            address: {
-              country_id: data.countryCode,
-              region: String(data.region.regionCode || ''),
-              region_id: String(data.region.regionId || ''),
-              postcode: data.postcode,
-            },
-            isValid: isDataValid,
-          });
-
-          prevEstimateShippingData = {
-            countryCode: data.countryCode,
-            regionCode: data.region.regionCode,
-            regionId: data.region.regionId,
-            postcode: data.postcode,
-          };
-        }, DEBOUNCE_TIME),
+        },
         showBillingCheckBox: false,
         showFormLoader: false,
         showShippingCheckBox: false,
@@ -572,6 +570,12 @@ export default async function decorate(block) {
       let isFirstRenderBilling = true;
       const hasCartBillingAddress = Boolean(data.billingAddress);
 
+      const setBillingAddressOnCart = setAddressOnCart({
+        api: checkoutApi.setBillingAddress,
+        debounceMs: DEBOUNCE_TIME,
+        placeOrderBtn: placeOrder,
+      });
+
       billingForm = await AccountProvider.render(AddressForm, {
         addressesFormTitle: 'Billing address',
         className: 'checkout-billing-form__address-form',
@@ -582,13 +586,11 @@ export default async function decorate(block) {
           countryCode: storeConfig.defaultCountry,
         },
         isOpen: true,
-        onChange: debounce((values) => {
-          if (!isFirstRenderBilling || !hasCartBillingAddress) {
-            setAddressOnCart(values, checkoutApi.setBillingAddress);
-          }
-
+        onChange: (values) => {
+          const canSetBillingAddressOnCart = !isFirstRenderBilling || !hasCartBillingAddress;
+          if (canSetBillingAddressOnCart) setBillingAddressOnCart(values);
           if (isFirstRenderBilling) isFirstRenderBilling = false;
-        }, DEBOUNCE_TIME),
+        },
         showBillingCheckBox: false,
         showFormLoader: false,
         showShippingCheckBox: false,
@@ -639,6 +641,12 @@ export default async function decorate(block) {
       const hasCartShippingAddress = Boolean(data.shippingAddresses?.[0]);
       let isFirstRenderShipping = true;
 
+      const setShippingAddressOnCart = setAddressOnCart({
+        api: checkoutApi.setShippingAddress,
+        debounceMs: DEBOUNCE_TIME,
+        placeOrderBtn: placeOrder,
+      });
+
       shippingAddresses = await AccountProvider.render(Addresses, {
         addressFormTitle: 'Deliver to new address',
         defaultSelectAddressId: shippingAddressId,
@@ -646,13 +654,11 @@ export default async function decorate(block) {
         forwardFormRef: shippingFormRef,
         inputsDefaultValueSet,
         minifiedView: false,
-        onAddressData: debounce((values) => {
-          if (!isFirstRenderShipping || !hasCartShippingAddress) {
-            setAddressOnCart(values, checkoutApi.setShippingAddress);
-          }
-
+        onAddressData: (values) => {
+          const canSetShippingAddressOnCart = !isFirstRenderShipping || !hasCartShippingAddress;
+          if (canSetShippingAddressOnCart) setShippingAddressOnCart(values);
           if (isFirstRenderShipping) isFirstRenderShipping = false;
-        }, DEBOUNCE_TIME),
+        },
         selectable: true,
         selectShipping: true,
         showBillingCheckBox: false,
@@ -689,6 +695,12 @@ export default async function decorate(block) {
       const hasCartBillingAddress = Boolean(data.billingAddress);
       let isFirstRenderBilling = true;
 
+      const setBillingAddressOnCart = setAddressOnCart({
+        api: checkoutApi.setBillingAddress,
+        debounceMs: DEBOUNCE_TIME,
+        placeOrderBtn: placeOrder,
+      });
+
       billingAddresses = await AccountProvider.render(Addresses, {
         addressFormTitle: 'Bill to new address',
         defaultSelectAddressId: billingAddressId,
@@ -696,13 +708,11 @@ export default async function decorate(block) {
         forwardFormRef: billingFormRef,
         inputsDefaultValueSet,
         minifiedView: false,
-        onAddressData: debounce((values) => {
-          if (!isFirstRenderBilling || !hasCartBillingAddress) {
-            setAddressOnCart(values, checkoutApi.setBillingAddress);
-          }
-
+        onAddressData: (values) => {
+          const canSetBillingAddressOnCart = !isFirstRenderBilling || !hasCartBillingAddress;
+          if (canSetBillingAddressOnCart) setBillingAddressOnCart(values);
           if (isFirstRenderBilling) isFirstRenderBilling = false;
-        }, DEBOUNCE_TIME),
+        },
         selectable: true,
         selectBilling: true,
         showBillingCheckBox: false,
@@ -715,6 +725,9 @@ export default async function decorate(block) {
 
   // Define the Layout for the Order Confirmation
   const displayOrderConfirmation = async (orderData) => {
+    // Scroll to the top of the page
+    window.scrollTo(0, 0);
+
     const orderConfirmationFragment = document.createRange()
       .createContextualFragment(`
       <div class="order-confirmation">
@@ -759,10 +772,7 @@ export default async function decorate(block) {
 
     block.replaceChildren(orderConfirmationFragment);
 
-    const onSignUpClick = async ({
-      inputsDefaultValueSet,
-      addressesData,
-    }) => {
+    const onSignUpClick = async ({ inputsDefaultValueSet, addressesData }) => {
       const signUpForm = document.createElement('div');
       AuthProvider.render(SignUp, {
         routeSignIn: () => '/customer/login',
@@ -783,11 +793,7 @@ export default async function decorate(block) {
       $orderStatus,
     );
     OrderProvider.render(ShippingStatus)($shippingStatus);
-    OrderProvider.render(CustomerDetails, {
-      paymentIconsMap: {
-        payment_services_paypal_hosted_fields: 'Delivery',
-      },
-    })($customerDetails);
+    OrderProvider.render(CustomerDetails)($customerDetails);
     OrderProvider.render(OrderCostSummary)($orderCostSummary);
     OrderProvider.render(OrderProductList)($orderProductList);
 
@@ -848,7 +854,7 @@ export default async function decorate(block) {
     if (data.isGuest) {
       await displayGuestAddressForms(data);
     } else {
-      removeOverlaySpinner();
+      await removeOverlaySpinner();
       await displayCustomerAddressForms(data);
     }
   };
@@ -859,19 +865,21 @@ export default async function decorate(block) {
   };
 
   const handleCheckoutOrder = async (orderData) => {
-    // clear address form data
+    // Clear address form data
     sessionStorage.removeItem(SHIPPING_ADDRESS_DATA_KEY);
     sessionStorage.removeItem(BILLING_ADDRESS_DATA_KEY);
 
     const token = getUserTokenCookie();
     const orderRef = token ? orderData.number : orderData.token;
+    const orderNumber = orderData.number;
     const encodedOrderRef = encodeURIComponent(orderRef);
+    const encodedOrderNumber = encodeURIComponent(orderNumber);
 
-    window.history.pushState(
-      {},
-      '',
-      `/order-details?orderRef=${encodedOrderRef}`,
-    );
+    const url = token
+      ? `/order-details?orderRef=${encodedOrderRef}`
+      : `/order-details?orderRef=${encodedOrderRef}&orderNumber=${encodedOrderNumber}`;
+
+    window.history.pushState({}, '', url);
 
     // TODO cleanup checkout containers
     await displayOrderConfirmation(orderData);
