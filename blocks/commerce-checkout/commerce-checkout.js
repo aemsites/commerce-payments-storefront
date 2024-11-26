@@ -188,7 +188,11 @@ export default async function decorate(block) {
     modal.removeModal();
     modal = null;
   };
-  const apiUrl = 'https://magento.test/graphql';
+
+  //const apiUrl = await getConfigValue('commerce-core-endpoint');
+  //const apiUrl = 'https://main-bvxea6i-aa4y6fsnbkaa4.us-4.magentosite.cloud/graphql';
+  //const apiUrl = 'https://magento.test/graphql';
+  const apiUrl = 'https://integration-5ojmyuq-55rzwkmk3qnfu.eu-4.magentosite.cloud/graphql';
 
   let paymentServicesSubmit;
 
