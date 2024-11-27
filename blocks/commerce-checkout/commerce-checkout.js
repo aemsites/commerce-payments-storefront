@@ -64,9 +64,6 @@ import CreditCard, { CREDIT_CARD_CODE } from '@dropins/payment-services/containe
 import { render as paymentServicesProvider } from '@dropins/payment-services/render.js';
 import { getUserTokenCookie } from '../../scripts/initializers/index.js';
 
-// Get Config Value
-import { getConfigValue } from '../../scripts/configs.js';
-
 // Block-level
 import createModal from '../modal/modal.js';
 
@@ -228,7 +225,10 @@ export default async function decorate(block) {
     modal = null;
   };
 
-  const apiUrl = await getConfigValue('commerce-core-endpoint');
+  //const apiUrl = await getConfigValue('commerce-core-endpoint');
+  //const apiUrl = 'https://main-bvxea6i-aa4y6fsnbkaa4.us-4.magentosite.cloud/graphql';
+  //const apiUrl = 'https://magento.test/graphql';
+  const apiUrl = 'https://integration-5ojmyuq-55rzwkmk3qnfu.eu-4.magentosite.cloud/graphql';
 
   let paymentServicesSubmit;
 
