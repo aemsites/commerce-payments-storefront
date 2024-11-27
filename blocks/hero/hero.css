@@ -1,19 +1,38 @@
-.hero-container .hero-wrapper {
-  max-width: unset;
+main .hero-container > div {
+  max-width: 100%;
+}
+
+main .hero-container {
   padding: 0;
+  margin-bottom: 2rem;
+}
+
+.hero-container .default-content-wrapper {
+  max-width: 900px;
+  margin: var(--spacing-large) auto var(--spacing-medium) auto;
 }
 
 .hero {
   position: relative;
-  padding: 40px 24px;
-  min-height: 300px;
+  padding: var(--spacing-big);
+  min-height: 600px;
 }
 
 .hero h1 {
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-  color: var(--background-color);
+  color: var(--color-neutral-800);
+}
+
+.hero-image h2 {
+  color: var(--color-neutral-50);
+  width: 300px;
+  padding: var(--spacing-xxbig);
+}
+
+.hero-image h2::after {
+  border: 0 none !important;
 }
 
 .hero picture {
@@ -30,8 +49,56 @@
   height: 100%;
 }
 
-@media (width >= 900px) {
-  .hero {
-    padding: 40px 32px;
-  }
+.hero p {
+  margin: 0;
+}
+
+.hero .hero-desc-wrapper {
+  color: var(--color-neutral-50);
+  position: absolute;
+  top: 15%;
+  right: 0;
+  padding: var(--spacing-medium);
+  box-sizing: border-box;
+  max-width: 500px;
+  width: 100%;
+}
+
+.hero .button-container a.button {
+margin-bottom: 0;
+}
+
+@media (width <= 768px) {
+.hero .hero-desc-wrapper {
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+bottom: unset;
+}
+}
+
+.hero .hero-desc-wrapper .button-container {
+display: inline-block;
+}
+
+.hero-container .default-content-wrapper h1,
+.hero-container .default-content-wrapper h2,
+.hero-container .default-content-wrapper h3,
+.hero-container .default-content-wrapper h4,
+.hero-container .default-content-wrapper h5,
+.hero-container .default-content-wrapper h6 {
+margin: 1rem 0 3rem;
+}
+
+
+@media (width <= 768px) {
+.hero-container .default-content-wrapper h1,
+.hero-container .default-content-wrapper h2,
+.hero-container .default-content-wrapper h3,
+.hero-container .default-content-wrapper h4,
+.hero-container .default-content-wrapper h5,
+.hero-container .default-content-wrapper h6 {
+padding: 0 1rem;
+margin: 1rem 0 2rem;
+}
 }
