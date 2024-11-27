@@ -341,13 +341,13 @@ export default async function decorate(block) {
               getCustomerToken: getUserTokenCookie,
               getCartId: () => _ctx.cartId,
               onFormValidityChange: (isValid) => {
-                placeOrder.setProps(() => ({ disabled: !isValid }));
+                placeOrder.setProps((props) => ({ ...props, disabled: !isValid }));
               },
               setSubmit: (submit) => {
                 paymentServicesSubmit = submit;
               },
               onRender: () => {
-                placeOrder.setProps(() => ({ disabled: true }));
+                placeOrder.setProps((props) => ({ ...props, disabled: true }));
               },
               onStart: () => {
               },
