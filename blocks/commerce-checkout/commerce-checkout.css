@@ -309,3 +309,14 @@
     margin-top: 0;
   }
 }
+
+/** -------------------- PAYMENT SERVICES ------------------- **/
+
+/* Hack to hide all Payment Methods except Credit Card blocks */
+.checkout-payment-methods__methods > div:nth-child(1),
+.checkout-payment-methods__methods > div:nth-child(2),
+.checkout-payment-methods__methods > div:nth-child(4),
+.checkout-payment-methods__methods > div:nth-child(5),
+.checkout-payment-methods__methods > div:nth-child(6) {
+    display: none;
+}
