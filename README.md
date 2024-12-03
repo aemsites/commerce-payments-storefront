@@ -5,8 +5,8 @@ This project boilerplate is for Edge Delivery Services projects that integrate w
 https://experienceleague.adobe.com/developer/commerce/storefront/
 
 ## Environments
-- Preview: https://main--{repo}--{owner}.aem.page/
-- Live: https://main--{repo}--{owner}.aem.live/
+- Preview: [https://payment-services--commerce-payments-storefront--aemsites.aem.page/](https://payment-services--commerce-payments-storefront--aemsites.aem.page/)
+- Live: [https://payment-services--commerce-payments-storefront--aemsites.aem.live/](https://payment-services--commerce-payments-storefront--aemsites.aem.live/)
 
 ## Pre-requisites
 
