@@ -12,9 +12,6 @@ export interface PaymentMethodHandlerSlotContext {
     replaceHTML: (domElement: HTMLElement) => void;
 }
 export interface PaymentMethodsProps extends HTMLAttributes<HTMLDivElement> {
-    setOnChange?: {
-        [key: string]: boolean;
-    } | undefined;
     slots?: {
         Main?: SlotProps<PaymentMethodsMainSlotContext>;
         Handlers?: PaymentMethodHandlerSlots;
