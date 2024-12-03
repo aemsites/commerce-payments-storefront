@@ -126,16 +126,16 @@ export function renderPrice(product, format, html = (strings, ...values) => stri
 
     if (finalMin.amount.value !== finalMax.amount.value) {
       return html`
-      <div class="price-range">
-        ${finalMin.amount.value !== regularMin.amount.value ? html`<span class="price-regular">${format(regularMin.amount.value)}</span>` : ''}
-        <span class="price-from">${format(finalMin.amount.value)} - ${format(finalMax.amount.value)}</span>
-      </div>`;
+        <div class="price-range">
+          ${finalMin.amount.value !== regularMin.amount.value ? html`<span class="price-regular">${format(regularMin.amount.value)}</span>` : ''}
+          <span class="price-from">${format(finalMin.amount.value)} - ${format(finalMax.amount.value)}</span>
+        </div>`;
     }
 
     if (finalMin.amount.value !== regularMin.amount.value) {
       return html`<${Fragment}>
-      <span class="price-final">${format(finalMin.amount.value)} - ${format(regularMin.amount.value)}</span>
-    </${Fragment}>`;
+        <span class="price-final">${format(finalMin.amount.value)} - ${format(regularMin.amount.value)}</span>
+      </${Fragment}>`;
     }
 
     return html`<span class="price-final">${format(finalMin.amount.value)}</span>`;
