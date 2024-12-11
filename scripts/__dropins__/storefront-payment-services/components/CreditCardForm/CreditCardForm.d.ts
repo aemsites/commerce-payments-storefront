@@ -9,7 +9,6 @@ export interface CreditCardFormProps extends HTMLAttributes<HTMLDivElement> {
     securityCodeContainerId: string;
     eligibleCards: CardType[];
     cardTypeSelected: CardType | null;
-    showCardTypeSelected: boolean;
     validationErrors: {
         [key: string]: string;
     };

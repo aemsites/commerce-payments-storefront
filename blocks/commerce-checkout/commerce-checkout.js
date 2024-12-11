@@ -230,7 +230,7 @@ export default async function decorate(block) {
 
   const apiUrl = await getConfigValue('commerce-core-endpoint');
 
-  let paymentServicesSubmit;
+  let paymentServicesCreditCard;
 
   const [
     _mergedCartBanner,
@@ -335,25 +335,16 @@ export default async function decorate(block) {
             const $content = document.createElement('div');
             $content.innerText = CREDIT_CARD_CODE;
             _ctx.replaceHTML($content);
+            placeOrder.setProps((props) => ({ ...props, disabled: true }));
             paymentServicesProvider.render(CreditCard, {
-              location: 'CHECKOUT',
               apiUrl,
               getCustomerToken: getUserTokenCookie,
               getCartId: () => _ctx.cartId,
-              onFormValidityChange: (isValid) => {
+              onValidation: (isValid) => {
                 placeOrder.setProps((props) => ({ ...props, disabled: !isValid }));
               },
-              setSubmit: (submit) => {
-                paymentServicesSubmit = submit;
-              },
-              onRender: () => {
-                placeOrder.setProps((props) => ({ ...props, disabled: true }));
-              },
-              onStart: () => {
-              },
-              onError: (error) => {
-              },
-              onSuccess: async () => {
+              onRender: (creditCard) => {
+                paymentServicesCreditCard = creditCard;
               },
             })($content);
           },
@@ -461,10 +452,9 @@ export default async function decorate(block) {
         await displayOverlaySpinner();
 
         try {
-          if (paymentServicesSubmit !== undefined) {
-            await paymentServicesSubmit();
-          }
-
+          // Submit Payment Services credit card form
+          await paymentServicesCreditCard.submit();
+          // Place order
           await checkoutApi.placeOrder();
         } catch (error) {
           console.error(error);
