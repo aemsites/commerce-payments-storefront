@@ -339,3 +339,7 @@
 .checkout-payment-methods__methods > div:nth-child(6) {
     display: none;
 }
+
+.elsie-credit-card-form {
+    margin-top: 24px;
+}
