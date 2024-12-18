@@ -9,6 +9,6 @@ interface UsePaymentsSDKResult {
     paymentsSDK: PaymentServicesSDK | null;
     sdkStatus: SDKStatus;
 }
-export declare function usePaymentsSDK({ apiUrl, location, getCustomerToken }: SdkConfig): UsePaymentsSDKResult;
+export declare function usePaymentsSDK({ apiUrl, getCustomerToken }: SdkConfig, location: string): UsePaymentsSDKResult;
 export {};
 //# sourceMappingURL=usePaymentsSDK.d.ts.map
