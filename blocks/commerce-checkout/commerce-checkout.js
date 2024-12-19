@@ -428,12 +428,11 @@ export default async function decorate(block) {
       },
       handlePlaceOrder: async ({ cartId }) => {
         await displayOverlaySpinner();
-
         try {
           // Submit Payment Services credit card form
           await paymentServicesCreditCard.submit();
           // Place order
-          await checkoutApi.placeOrder();
+          await orderApi.placeOrder(cartId).finally(removeOverlaySpinner);
         } catch (error) {
           console.error(error);
           throw error;
