@@ -1,14 +1,14 @@
+import { CardType } from '@adobe-commerce/payment-services-sdk/payment';
 import { FunctionComponent } from 'preact';
 import { HTMLAttributes } from 'preact/compat';
-import { CardType } from '@adobe-commerce/payment-services-sdk/payment';
 
 export interface CreditCardFormProps extends HTMLAttributes<HTMLDivElement> {
     cardContainerId: string;
     cardNumberContainerId: string;
     expirationDateContainerId: string;
     securityCodeContainerId: string;
-    eligibleCards: CardType[];
-    cardTypeSelected: CardType | null;
+    eligibleCardTypes: CardType[];
+    selectedCardType: CardType | null;
     validationErrors: {
         [key: string]: string;
     };

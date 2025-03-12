@@ -1,5 +1,5 @@
+/* eslint-disable import/no-cycle */
 /* eslint-disable import/prefer-default-export */
-/* eslint import/no-cycle: [2, { maxDepth: 1 }] */
 
 import { initializers } from '@dropins/tools/initializer.js';
 import { Image, provider as UI } from '@dropins/tools/components.js';
@@ -16,7 +16,7 @@ import {
   getSkuFromUrl,
   loadErrorPage,
 } from '../commerce.js';
-import { getConfigValue } from '../configs.js';
+import { getHeaders } from '../configs.js';
 import { fetchPlaceholders } from '../aem.js';
 
 export const IMAGES_SIZES = {
@@ -30,8 +30,8 @@ await initializeDropin(async () => {
 
   // Set Fetch Headers (Service)
   setFetchGraphQlHeaders({
+    ...(await getHeaders('cs')),
     'Content-Type': 'application/json',
-    'x-api-key': await getConfigValue('commerce-x-api-key'),
   });
 
   const sku = getSkuFromUrl();

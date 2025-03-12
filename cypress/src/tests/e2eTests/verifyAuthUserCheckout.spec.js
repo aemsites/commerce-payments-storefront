@@ -3,7 +3,8 @@ import {
   setGuestBillingAddress,
   placeOrder,
   signUpUser,
-  uncheckBillToShippingAddress
+  uncheckBillToShippingAddress,
+  setPaymentMethod,
 } from '../../actions';
 import {
   assertCartSummaryProduct,
@@ -16,15 +17,14 @@ import {
   assertOrderConfirmationShippingDetails,
   assertOrderConfirmationBillingDetails,
   assertOrderConfirmationShippingMethod,
-  assertAuthUser
-} from '../../assertions';
-import {
-
   assertSelectedPaymentMethod,
+  assertAuthUser,
 } from '../../assertions';
 import {
   customerShippingAddress,
   customerBillingAddress,
+  paymentServicesCreditCard,
+  checkMoneyOrder,
 } from '../../fixtures/index';
 import * as fields from "../../fields";
 
@@ -147,7 +147,7 @@ describe('Verify auth user can place order', () => {
     )('.commerce-cart-wrapper');
     assertProductImage('/mh05-white_main_1.jpg')('.commerce-cart-wrapper');
     cy.contains('Estimated Shipping').should('be.visible');
-    cy.get('.dropin-button--primary')
+    cy.get('.dropin-button.dropin-button--medium.dropin-button--primary')
       .contains('Checkout')
       .click();
     assertCartSummaryMisc(2);
@@ -172,10 +172,12 @@ describe('Verify auth user can place order', () => {
     cy.wait(2000);
     setGuestBillingAddress(customerBillingAddress, true);
     assertOrderSummaryMisc('$90.00', '$10.00', '$86.50');
-    assertSelectedPaymentMethod('checkmo', 0);
+    assertSelectedPaymentMethod(checkMoneyOrder.code, 0);
+    setPaymentMethod(paymentServicesCreditCard);
+    assertSelectedPaymentMethod(paymentServicesCreditCard.code, 1);
     cy.wait(5000);
     placeOrder();
-    assertOrderConfirmationCommonDetails(customerBillingAddress);
+    assertOrderConfirmationCommonDetails(customerBillingAddress, paymentServicesCreditCard);
     assertOrderConfirmationShippingDetails(customerShippingAddress);
     assertOrderConfirmationBillingDetails(customerBillingAddress);
     assertOrderConfirmationShippingMethod(customerShippingAddress);

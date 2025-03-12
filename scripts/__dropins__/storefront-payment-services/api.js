@@ -1,3 +1,3 @@
-/*! Copyright 2024 Adobe
+/*! Copyright 2025 Adobe
 All Rights Reserved. */
-import{Initializer as t}from"@dropins/tools/lib.js";const i=new t({init:async n=>{const o={};i.config.setConfig({...o,...n})},listeners:()=>[]}),c=i.config;export{c as config,i as initialize};
+import{c as r,i as e}from"./chunks/initialize.js";import"@dropins/tools/lib.js";var p=(_=>(_.CREDIT_CARD="payment_services_paypal_hosted_fields",_.SMART_BUTTONS="payment_services_paypal_smart_buttons",_.APPLE_PAY="payment_services_paypal_apple_pay",_.GOOGLE_PAY="payment_services_paypal_google_pay",_.VAULT="payment_services_paypal_vault",_))(p||{});export{p as PaymentMethodCode,r as config,e as initialize};

@@ -23,6 +23,7 @@ import {
 } from './aem.js';
 import { trackHistory } from './commerce.js';
 import initializeDropins from './initializers/index.js';
+import { removeHashTags } from './api/hashtags/parser.js';
 
 const AUDIENCES = {
   mobile: () => window.innerWidth < 600,
@@ -152,6 +153,22 @@ export function decorateMain(main) {
   decorateBlocks(main);
 }
 
+/**
+ * Decorates all links in scope of element
+ *
+ * @param {HTMLElement} element
+ */
+function decorateLinks(element) {
+  element.querySelectorAll('a').forEach((a) => {
+    if (!a.hash) {
+      return;
+    }
+    a.addEventListener('click', (evt) => {
+      removeHashTags(evt.target);
+    });
+  });
+}
+
 function preloadFile(href, as) {
   const link = document.createElement('link');
   link.rel = 'preload';
@@ -175,7 +192,7 @@ async function loadEager(doc) {
     || Object.keys(getAllMetadata('audience')).length) {
     // eslint-disable-next-line import/no-relative-packages
     const { loadEager: runEager } = await import('../plugins/experimentation/src/index.js');
-    await runEager(document, { audiences: AUDIENCES }, pluginContext);
+    await runEager(document, { audiences: AUDIENCES, overrideMetadataFields: ['placeholders'] }, pluginContext);
   }
 
   await initializeDropins();
@@ -305,6 +322,8 @@ async function loadLazy(doc) {
   }
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
+
+  decorateLinks(doc);
 }
 
 /**
@@ -357,6 +376,26 @@ export async function fetchIndex(indexFile, pageSize = 500) {
 }
 
 /**
+ * Get root path
+ */
+export function getRootPath() {
+  window.ROOT_PATH = window.ROOT_PATH || getMetadata('root') || '/';
+  return window.ROOT_PATH;
+}
+
+/**
+ * Decorates links.
+ * @param {string} [link] url to be localized
+ */
+export function rootLink(link) {
+  const root = getRootPath().replace(/\/$/, '');
+
+  // If the link is already localized, do nothing
+  if (link.startsWith(root)) return link;
+  return `${root}${link}`;
+}
+
+/**
  * Check if consent was given for a specific topic.
  * @param {*} topic Topic identifier
  * @returns {boolean} True if consent was given
@@ -374,3 +413,9 @@ async function loadPage() {
 }
 
 loadPage();
+
+(async function loadDa() {
+  if (!new URL(window.location.href).searchParams.get('dapreview')) return;
+  // eslint-disable-next-line import/no-unresolved
+  import('https://da.live/scripts/dapreview.js').then(({ default: daPreview }) => daPreview(loadPage));
+}());
