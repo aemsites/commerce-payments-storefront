@@ -1,6 +1,7 @@
 import { events } from '@dropins/tools/event-bus.js';
 import { render as provider } from '@dropins/storefront-cart/render.js';
 import * as Cart from '@dropins/storefront-cart/api.js';
+import { InLineAlert, Icon, provider as UI } from '@dropins/tools/components.js';
 
 // Dropin Containers
 import CartSummaryList from '@dropins/storefront-cart/containers/CartSummaryList.js';
@@ -10,15 +11,19 @@ import EmptyCart from '@dropins/storefront-cart/containers/EmptyCart.js';
 import Coupons from '@dropins/storefront-cart/containers/Coupons.js';
 import GiftCards from '@dropins/storefront-cart/containers/GiftCards.js';
 import GiftOptions from '@dropins/storefront-cart/containers/GiftOptions.js';
+import { render as wishlistRender } from '@dropins/storefront-wishlist/render.js';
+import { WishlistToggle } from '@dropins/storefront-wishlist/containers/WishlistToggle.js';
 
 // API
 import { publishShoppingCartViewEvent } from '@dropins/storefront-cart/api.js';
 
 // Initializers
 import '../../scripts/initializers/cart.js';
+import '../../scripts/initializers/wishlist.js';
 
 import { readBlockConfig } from '../../scripts/aem.js';
 import { rootLink } from '../../scripts/scripts.js';
+import { fetchPlaceholders } from '../../scripts/commerce.js';
 
 export default async function decorate(block) {
   // Configuration
@@ -31,7 +36,10 @@ export default async function decorate(block) {
     'enable-estimate-shipping': enableEstimateShipping = 'false',
     'start-shopping-url': startShoppingURL = '',
     'checkout-url': checkoutURL = '',
+    'enable-updating-product': enableUpdatingProduct = 'false',
   } = readBlockConfig(block);
+
+  const placeholders = await fetchPlaceholders();
 
   const cart = Cart.getCartDataFromCache();
 
@@ -39,6 +47,7 @@ export default async function decorate(block) {
 
   // Layout
   const fragment = document.createRange().createContextualFragment(`
+    <div class="cart__notification"></div>
     <div class="cart__wrapper">
       <div class="cart__left-column">
         <div class="cart__list"></div>
@@ -53,6 +62,7 @@ export default async function decorate(block) {
   `);
 
   const $wrapper = fragment.querySelector('.cart__wrapper');
+  const $notification = fragment.querySelector('.cart__notification');
   const $list = fragment.querySelector('.cart__list');
   const $summary = fragment.querySelector('.cart__order-summary');
   const $emptyCart = fragment.querySelector('.cart__empty-cart');
@@ -91,6 +101,39 @@ export default async function decorate(block) {
         Footer: (ctx) => {
           const giftOptions = document.createElement('div');
 
+          if (ctx.item?.itemType === 'ConfigurableCartItem' && enableUpdatingProduct === 'true') {
+            const editLinkContainer = document.createElement('div');
+            editLinkContainer.className = 'cart-item-edit-container';
+
+            const editButton = document.createElement('button');
+            editButton.className = 'cart-item-edit-link';
+            editButton.textContent = 'Edit';
+
+            editButton.addEventListener('click', () => {
+              const { item } = ctx;
+              const productUrl = rootLink(`/products/${item.url.urlKey}/${item.topLevelSku}`);
+
+              const params = new URLSearchParams();
+
+              if (item.selectedOptionsUIDs) {
+                const optionsValues = Object.values(item.selectedOptionsUIDs);
+                if (optionsValues.length > 0) {
+                  const joinedValues = optionsValues.join(',');
+                  params.append('optionsUIDs', joinedValues);
+                }
+              }
+
+              params.append('quantity', item.quantity);
+              params.append('itemUid', item.uid);
+
+              const finalUrl = `${productUrl}?${params.toString()}`;
+              window.location.href = finalUrl;
+            });
+
+            editLinkContainer.appendChild(editButton);
+            ctx.appendChild(editLinkContainer);
+          }
+
           provider.render(GiftOptions, {
             item: ctx.item,
             view: 'product',
@@ -101,6 +144,20 @@ export default async function decorate(block) {
           })(giftOptions);
 
           ctx.appendChild(giftOptions);
+
+          // Wishlist Button
+          const $wishlistToggle = document.createElement('div');
+          $wishlistToggle.classList.add('cart__action--wishlist-toggle');
+
+          // Render Icon
+          wishlistRender.render(WishlistToggle, {
+            product: ctx.item,
+            labelToWishlist: 'Move to wishlist',
+            labelWishlisted: 'Remove from wishlist',
+          })($wishlistToggle);
+
+          // Append to Cart Item
+          ctx.prependSibling($wishlistToggle);
         },
       },
     })($list),
@@ -149,8 +206,38 @@ export default async function decorate(block) {
   // Events
   events.on(
     'cart/data',
-    (payload) => {
-      toggleEmptyCart(isCartEmpty(payload));
+    (cartData) => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const itemUid = urlParams.get('itemUid');
+
+      if (itemUid && cartData?.items) {
+        const itemExists = cartData.items.some((item) => item.uid === itemUid);
+        if (itemExists) {
+          const updatedItem = cartData.items.find((item) => item.uid === itemUid);
+          const productName = updatedItem.name
+            || updatedItem.product?.name
+            || placeholders?.Cart?.UpdatedProductName;
+          const message = placeholders?.Cart?.UpdatedProductMessage?.replace('{product}', productName);
+
+          UI.render(InLineAlert, {
+            heading: message,
+            type: 'success',
+            variant: 'primary',
+            icon: Icon({ source: 'CheckWithCircle' }),
+            'aria-live': 'assertive',
+            role: 'alert',
+            onDismiss: () => {
+              $notification.innerHTML = '';
+            },
+          })($notification);
+        }
+
+        if (window.location.search) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      }
+
+      toggleEmptyCart(isCartEmpty(cartData));
 
       if (!cartViewEventPublished) {
         cartViewEventPublished = true;
