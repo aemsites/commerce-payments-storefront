@@ -1,5 +1,4 @@
 .*
-!.well-known
 *.md
 *.d.ts
 *.map
@@ -14,3 +13,4 @@ cypress/
 tools/picker/src/*
 tools/pdp-metadata/*
 plugins/experimentation/documentation/images/*
+!.well-known
