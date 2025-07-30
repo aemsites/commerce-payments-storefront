@@ -1,4 +1,5 @@
 .*
+!.well-known/
 *.md
 *.d.ts
 *.map
