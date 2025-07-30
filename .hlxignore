@@ -1,4 +1,5 @@
 .*
+*.md
 *.d.ts
 *.map
 karma.config.js
