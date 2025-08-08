@@ -9,12 +9,16 @@ import { publishShoppingCartViewEvent } from '@dropins/storefront-cart/api.js';
 import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
 
-// TODO: Following two imports added for demo purpose (Auth Drop-In)
 import renderAuthCombine from './renderAuthCombine.js';
 import { renderAuthDropdown } from './renderAuthDropdown.js';
+import { rootLink } from '../../scripts/scripts.js';
 
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 900px)');
+
+const overlay = document.createElement('div');
+overlay.classList.add('overlay');
+document.querySelector('header').insertAdjacentElement('afterbegin', overlay);
 
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
@@ -24,11 +28,15 @@ function closeOnEscape(e) {
     if (navSectionExpanded && isDesktop.matches) {
       // eslint-disable-next-line no-use-before-define
       toggleAllNavSections(navSections);
+      overlay.classList.remove('show');
       navSectionExpanded.focus();
     } else if (!isDesktop.matches) {
       // eslint-disable-next-line no-use-before-define
       toggleMenu(nav, navSections);
+      overlay.classList.remove('show');
       nav.querySelector('button').focus();
+      const navWrapper = document.querySelector('.nav-wrapper');
+      navWrapper.classList.remove('active');
     }
   }
 }
@@ -41,9 +49,10 @@ function closeOnFocusLost(e) {
     if (navSectionExpanded && isDesktop.matches) {
       // eslint-disable-next-line no-use-before-define
       toggleAllNavSections(navSections, false);
+      overlay.classList.remove('show');
     } else if (!isDesktop.matches) {
       // eslint-disable-next-line no-use-before-define
-      toggleMenu(nav, navSections, false);
+      toggleMenu(nav, navSections, true);
     }
   }
 }
@@ -100,6 +109,7 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
     });
   } else {
     navDrops.forEach((drop) => {
+      drop.classList.remove('active');
       drop.removeAttribute('tabindex');
       drop.removeEventListener('focus', focusNavSection);
     });
@@ -114,6 +124,38 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
   } else {
     window.removeEventListener('keydown', closeOnEscape);
     nav.removeEventListener('focusout', closeOnFocusLost);
+  }
+}
+
+const subMenuHeader = document.createElement('div');
+subMenuHeader.classList.add('submenu-header');
+subMenuHeader.innerHTML = '<h5 class="back-link">All Categories</h5><hr />';
+
+/**
+ * Sets up the submenu
+ * @param {navSection} navSection The nav section element
+ */
+function setupSubmenu(navSection) {
+  if (navSection.querySelector('ul')) {
+    let label;
+    if (navSection.childNodes.length) {
+      [label] = navSection.childNodes;
+    }
+
+    const submenu = navSection.querySelector('ul');
+    const wrapper = document.createElement('div');
+    const header = subMenuHeader.cloneNode(true);
+    const title = document.createElement('h6');
+    title.classList.add('submenu-title');
+    title.textContent = label.textContent;
+
+    wrapper.classList.add('submenu-wrapper');
+    wrapper.appendChild(header);
+    wrapper.appendChild(title);
+    wrapper.appendChild(submenu.cloneNode(true));
+
+    navSection.appendChild(wrapper);
+    navSection.removeChild(submenu);
   }
 }
 
@@ -152,17 +194,47 @@ export default async function decorate(block) {
       .querySelectorAll(':scope .default-content-wrapper > ul > li')
       .forEach((navSection) => {
         if (navSection.querySelector('ul')) navSection.classList.add('nav-drop');
-        navSection.addEventListener('click', () => {
+        setupSubmenu(navSection);
+        navSection.addEventListener('click', (event) => {
+          if (event.target.tagName === 'A') return;
+          if (!isDesktop.matches) {
+            navSection.classList.toggle('active');
+          }
+        });
+        navSection.addEventListener('mouseenter', () => {
+          toggleAllNavSections(navSections);
           if (isDesktop.matches) {
-            const expanded = navSection.getAttribute('aria-expanded') === 'true';
-            toggleAllNavSections(navSections);
-            navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+            if (!navSection.classList.contains('nav-drop')) {
+              overlay.classList.remove('show');
+              return;
+            }
+            navSection.setAttribute('aria-expanded', 'true');
+            overlay.classList.add('show');
           }
         });
       });
   }
 
   const navTools = nav.querySelector('.nav-tools');
+
+  /** Wishlist */
+  const wishlist = document.createRange().createContextualFragment(`
+     <div class="wishlist-wrapper nav-tools-wrapper">
+       <button type="button" class="nav-wishlist-button" aria-label="Wishlist"></button>
+       <div class="wishlist-panel nav-tools-panel"></div>
+     </div>
+   `);
+
+  navTools.append(wishlist);
+
+  const wishlistButton = navTools.querySelector('.nav-wishlist-button');
+
+  const wishlistMeta = getMetadata('wishlist');
+  const wishlistPath = wishlistMeta ? new URL(wishlistMeta, window.location).pathname : '/wishlist';
+
+  wishlistButton.addEventListener('click', () => {
+    window.location.href = rootLink(wishlistPath);
+  });
 
   /** Mini Cart */
   const excludeMiniCartFromPaths = ['/checkout'];
@@ -217,7 +289,6 @@ export default async function decorate(block) {
   );
 
   /** Search */
-
   // TODO
   const search = document.createRange().createContextualFragment(`
   <div class="search-wrapper nav-tools-wrapper">
@@ -239,6 +310,10 @@ export default async function decorate(block) {
 
   const searchInput = searchPanel.querySelector('input');
 
+  const searchForm = searchPanel.querySelector('form');
+
+  searchForm.action = rootLink('/search');
+
   async function toggleSearch(state) {
     const show = state ?? !searchPanel.classList.contains('nav-tools-panel--show');
 
@@ -250,7 +325,13 @@ export default async function decorate(block) {
     }
   }
 
-  navTools.querySelector('.nav-search-button').addEventListener('click', () => toggleSearch());
+  navTools.querySelector('.nav-search-button').addEventListener('click', () => {
+    if (isDesktop.matches) {
+      toggleAllNavSections(navSections);
+      overlay.classList.remove('show');
+    }
+    toggleSearch();
+  });
 
   // Close panels when clicking outside
   document.addEventListener('click', (e) => {
@@ -263,25 +344,41 @@ export default async function decorate(block) {
     }
   });
 
+  const navWrapper = document.createElement('div');
+  navWrapper.className = 'nav-wrapper';
+  navWrapper.append(nav);
+  block.append(navWrapper);
+
+  navWrapper.addEventListener('mouseout', (e) => {
+    if (isDesktop.matches && !nav.contains(e.relatedTarget)) {
+      toggleAllNavSections(navSections);
+      overlay.classList.remove('show');
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    navWrapper.classList.remove('active');
+    overlay.classList.remove('show');
+    toggleMenu(nav, navSections, false);
+  });
+
   // hamburger for mobile
   const hamburger = document.createElement('div');
   hamburger.classList.add('nav-hamburger');
   hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
       <span class="nav-hamburger-icon"></span>
     </button>`;
-  hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
+  hamburger.addEventListener('click', () => {
+    navWrapper.classList.toggle('active');
+    overlay.classList.toggle('show');
+    toggleMenu(nav, navSections);
+  });
   nav.prepend(hamburger);
   nav.setAttribute('aria-expanded', 'false');
   // prevent mobile nav behavior on window resize
   toggleMenu(nav, navSections, isDesktop.matches);
   isDesktop.addEventListener('change', () => toggleMenu(nav, navSections, isDesktop.matches));
 
-  const navWrapper = document.createElement('div');
-  navWrapper.className = 'nav-wrapper';
-  navWrapper.append(nav);
-  block.append(navWrapper);
-
-  // TODO: Following statements added for demo purpose (Auth Drop-In)
   renderAuthCombine(
     navSections,
     () => !isDesktop.matches && toggleMenu(nav, navSections, false),
