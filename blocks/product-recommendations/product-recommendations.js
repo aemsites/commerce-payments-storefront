@@ -1,5 +1,7 @@
 /* eslint-disable no-underscore-dangle */
+import { render as wishlistRender } from '@dropins/storefront-wishlist/render.js';
 import { addProductsToCart } from '@dropins/storefront-cart/api.js';
+import WishlistToggle from '@dropins/storefront-wishlist/containers/WishlistToggle.js';
 import { Button, provider as UI } from '@dropins/tools/components.js';
 import { readBlockConfig } from '../../scripts/aem.js';
 import { performCatalogServiceQuery } from '../../scripts/commerce.js';
@@ -7,6 +9,8 @@ import { getConfigValue } from '../../scripts/configs.js';
 
 // initialize dropins
 import '../../scripts/initializers/cart.js';
+import '../../scripts/initializers/wishlist.js';
+import { rootLink } from '../../scripts/scripts.js';
 
 const isMobile = window.matchMedia('only screen and (max-width: 900px)').matches;
 
@@ -93,27 +97,34 @@ function renderItem(unitId, product) {
       }
     } else {
       // Navigate to page for non-simple products
-      window.location.href = `/products/${product.urlKey}/${product.sku}`;
+      window.location.href = rootLink(`/products/${product.urlKey}/${product.sku}`);
     }
   };
 
   const ctaText = product.__typename === 'SimpleProductView' ? 'Add to Cart' : 'Select Options';
   const item = document.createRange().createContextualFragment(`<div class="product-grid-item">
-    <a href="/products/${product.urlKey}/${product.sku}">
+    <a href="${rootLink(`/products/${product.urlKey}/${product.sku}`)}">
       <picture>
         <source type="image/webp" srcset="${image}?width=300&format=webply&optimize=medium" />
         <img loading="lazy" alt="Image of ${product.name}" width="300" height="375" src="${image}?width=300&format=jpg&optimize=medium" />
       </picture>
       <span>${product.name}</span>
     </a>
-    <span class="product-grid-cta"></span>
+    <div class="product-grid-actions">
+      <span class="product-grid-cta"></span>
+      <span class="product-grid-wishlist"></span>
+    </div>
   </div>`);
   item.querySelector('a').addEventListener('click', clickHandler);
   const buttonEl = item.querySelector('.product-grid-cta');
+  const buttonWishlist = item.querySelector('.product-grid-wishlist');
   UI.render(Button, {
     children: ctaText,
     onClick: addToCartHandler,
   })(buttonEl);
+  wishlistRender.render(WishlistToggle, {
+    product,
+  })(buttonWishlist);
   return item;
 }
 
@@ -164,7 +175,7 @@ const mapProduct = (product, index) => ({
   categories: [],
   weight: 0,
   image: product.images.length > 0 ? product.images[0].url : undefined,
-  url: new URL(`/products/${product.urlKey}/${product.sku}`, window.location.origin).toString(),
+  url: new URL(rootLink(`/products/${product.urlKey}/${product.sku}`), window.location.origin).toString(),
   queryType: 'primary',
 });
 
@@ -196,7 +207,7 @@ async function loadRecommendation(block, context, visibility, filters) {
     return;
   }
 
-  const storeViewCode = await getConfigValue('commerce-store-view-code');
+  const storeViewCode = getConfigValue('headers.cs.Magento-Store-View-Code');
 
   if (unitsPromise) {
     return;

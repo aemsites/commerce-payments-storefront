@@ -1,8 +1,45 @@
-import { OrderDataModel } from '../data/models';
+import { OrderDataModel, OrderItemModel } from '../data/models';
 
 export declare const categorizeProducts: (order: OrderDataModel) => {
     returnedList: {
         totalQuantity: number;
+        giftMessage: {
+            senderName: string;
+            recipientName: string;
+            message: string;
+        };
+        giftWrappingPrice: import('../types/index').MoneyProps;
+        productGiftWrapping: {
+            uid: string;
+            design: string;
+            selected: boolean;
+            image: {
+                url: string;
+                label: string;
+            };
+            price: import('../types/index').MoneyProps;
+        }[];
+        taxCalculations: {
+            includeAndExcludeTax: {
+                originalPrice: import('../types/index').MoneyProps;
+                baseOriginalPrice: import('../types/index').MoneyProps;
+                baseDiscountedPrice: import('../types/index').MoneyProps;
+                baseExcludingTax: import('../types/index').MoneyProps;
+            };
+            excludeTax: {
+                originalPrice: import('../types/index').MoneyProps;
+                baseOriginalPrice: import('../types/index').MoneyProps;
+                baseDiscountedPrice: import('../types/index').MoneyProps;
+                baseExcludingTax: import('../types/index').MoneyProps;
+            };
+            includeTax: {
+                singleItemPrice: import('../types/index').MoneyProps;
+                baseOriginalPrice: import('../types/index').MoneyProps;
+                baseDiscountedPrice: import('../types/index').MoneyProps;
+            };
+        };
+        productSalePrice: import('../types/index').MoneyProps;
+        status?: string | undefined;
         currentReturnOrderQuantity?: number | undefined;
         eligibleForReturn: boolean;
         productSku?: string | undefined;
@@ -26,6 +63,18 @@ export declare const categorizeProducts: (order: OrderDataModel) => {
             count: number;
             result: string;
         } | null;
+        prices: {
+            priceIncludingTax: import('../types/index').MoneyProps;
+            originalPrice: import('../types/index').MoneyProps;
+            originalPriceIncludingTax: import('../types/index').MoneyProps;
+            price: import('../types/index').MoneyProps;
+            discounts: [{
+                label: string;
+                amount: {
+                    value: number;
+                };
+            }];
+        };
         itemPrices: {
             priceIncludingTax: import('../types/index').MoneyProps;
             originalPrice: import('../types/index').MoneyProps;
@@ -56,11 +105,11 @@ export declare const categorizeProducts: (order: OrderDataModel) => {
         quantityRefunded: number;
         quantityReturned: number;
         quantityShipped: number;
-        requestQuantity: number;
+        requestQuantity?: number | undefined;
         returnableQuantity?: number | undefined;
         quantityReturnRequested: number;
     }[];
-    canceledItems: (import('../data/models').OrderItemModel | null)[];
-    nonCanceledItems: (import('../data/models').OrderItemModel | null)[];
+    canceledItems: OrderItemModel[];
+    nonCanceledItems: OrderItemModel[];
 };
 //# sourceMappingURL=categorizeProducts.d.ts.map

@@ -28,6 +28,7 @@ declare const bundleOptions: {
     }[];
     uid: string;
     quantity: number;
+    gift_message_available: string;
     errors: null;
     prices: {
         price: {
@@ -61,12 +62,12 @@ declare const bundleOptions: {
     product: {
         name: string;
         sku: string;
+        quantity: number;
         thumbnail: {
             url: string;
             label: string;
         };
         url_key: string;
-        url_suffix: string;
         categories: {
             url_path: string;
             url_key: string;
@@ -94,6 +95,7 @@ declare const bundleOptionsEmpty: {
     bundle_options: never[];
     uid: string;
     quantity: number;
+    gift_message_available: string;
     errors: null;
     prices: {
         price: {
@@ -127,12 +129,12 @@ declare const bundleOptionsEmpty: {
     product: {
         name: string;
         sku: string;
+        quantity: number;
         thumbnail: {
             url: string;
             label: string;
         };
         url_key: string;
-        url_suffix: string;
         categories: {
             url_path: string;
             url_key: string;
@@ -162,6 +164,7 @@ declare const giftCardPhysical: {
     sender_name: string;
     uid: string;
     quantity: number;
+    gift_message_available: string;
     errors: null;
     prices: {
         price: {
@@ -195,12 +198,12 @@ declare const giftCardPhysical: {
     product: {
         name: string;
         sku: string;
+        quantity: number;
         thumbnail: {
             url: string;
             label: string;
         };
         url_key: string;
-        url_suffix: string;
         categories: {
             url_path: string;
             url_key: string;
@@ -232,6 +235,7 @@ declare const giftCardVirtual: {
     sender_name: string;
     uid: string;
     quantity: number;
+    gift_message_available: string;
     errors: null;
     prices: {
         price: {
@@ -265,12 +269,12 @@ declare const giftCardVirtual: {
     product: {
         name: string;
         sku: string;
+        quantity: number;
         thumbnail: {
             url: string;
             label: string;
         };
         url_key: string;
-        url_suffix: string;
         categories: {
             url_path: string;
             url_key: string;
@@ -296,6 +300,7 @@ declare const giftCardVirtual: {
 declare const simple: {
     uid: string;
     quantity: number;
+    gift_message_available: string;
     errors: null;
     prices: {
         price: {
@@ -329,12 +334,12 @@ declare const simple: {
     product: {
         name: string;
         sku: string;
+        quantity: number;
         thumbnail: {
             url: string;
             label: string;
         };
         url_key: string;
-        url_suffix: string;
         categories: {
             url_path: string;
             url_key: string;
@@ -379,6 +384,7 @@ declare const simpleCustomizable: {
     })[];
     uid: string;
     quantity: number;
+    gift_message_available: string;
     errors: null;
     prices: {
         price: {
@@ -412,12 +418,12 @@ declare const simpleCustomizable: {
     product: {
         name: string;
         sku: string;
+        quantity: number;
         thumbnail: {
             url: string;
             label: string;
         };
         url_key: string;
-        url_suffix: string;
         categories: {
             url_path: string;
             url_key: string;
@@ -446,6 +452,7 @@ declare const configurable: {
         configurable_product_option_uid: string;
         option_label: string;
         value_label: string;
+        configurable_product_option_value_uid: string;
     }[];
     configured_variant: {
         uid: string;
@@ -472,6 +479,7 @@ declare const configurable: {
     };
     uid: string;
     quantity: number;
+    gift_message_available: string;
     errors: null;
     prices: {
         price: {
@@ -505,12 +513,12 @@ declare const configurable: {
     product: {
         name: string;
         sku: string;
+        quantity: number;
         thumbnail: {
             url: string;
             label: string;
         };
         url_key: string;
-        url_suffix: string;
         categories: {
             url_path: string;
             url_key: string;
@@ -557,6 +565,7 @@ declare const configurableCustomizable: {
         configurable_product_option_uid: string;
         option_label: string;
         value_label: string;
+        configurable_product_option_value_uid: string;
     }[];
     configured_variant: {
         uid: string;
@@ -583,6 +592,7 @@ declare const configurableCustomizable: {
     };
     uid: string;
     quantity: number;
+    gift_message_available: string;
     errors: null;
     prices: {
         price: {
@@ -616,12 +626,12 @@ declare const configurableCustomizable: {
     product: {
         name: string;
         sku: string;
+        quantity: number;
         thumbnail: {
             url: string;
             label: string;
         };
         url_key: string;
-        url_suffix: string;
         categories: {
             url_path: string;
             url_key: string;
@@ -648,6 +658,7 @@ declare const giftCard: {
     __typename: string;
     uid: string;
     quantity: number;
+    gift_message_available: string;
     errors: null;
     prices: {
         price: {
@@ -681,12 +692,12 @@ declare const giftCard: {
     product: {
         name: string;
         sku: string;
+        quantity: number;
         thumbnail: {
             url: string;
             label: string;
         };
         url_key: string;
-        url_suffix: string;
         categories: {
             url_path: string;
             url_key: string;
@@ -717,6 +728,7 @@ declare const downloadbleWithMultipleLinks: {
     }[];
     uid: string;
     quantity: number;
+    gift_message_available: string;
     errors: null;
     prices: {
         price: {
@@ -750,12 +762,12 @@ declare const downloadbleWithMultipleLinks: {
     product: {
         name: string;
         sku: string;
+        quantity: number;
         thumbnail: {
             url: string;
             label: string;
         };
         url_key: string;
-        url_suffix: string;
         categories: {
             url_path: string;
             url_key: string;
@@ -786,12 +798,12 @@ declare const simpleLowInventory: {
         only_x_left_in_stock: number;
         name: string;
         sku: string;
+        quantity: number;
         thumbnail: {
             url: string;
             label: string;
         };
         url_key: string;
-        url_suffix: string;
         categories: {
             url_path: string;
             url_key: string;
@@ -815,6 +827,7 @@ declare const simpleLowInventory: {
     };
     uid: string;
     quantity: number;
+    gift_message_available: string;
     errors: null;
     prices: {
         price: {
@@ -854,12 +867,12 @@ declare const complexInsufficientQuantity: {
         stock_status: string;
         name: string;
         sku: string;
+        quantity: number;
         thumbnail: {
             url: string;
             label: string;
         };
         url_key: string;
-        url_suffix: string;
         categories: {
             url_path: string;
             url_key: string;
@@ -888,6 +901,7 @@ declare const complexInsufficientQuantity: {
     }[];
     uid: string;
     quantity: number;
+    gift_message_available: string;
     errors: null;
     prices: {
         price: {
@@ -927,12 +941,12 @@ declare const complexInsufficientQuantityGeneralMessage: {
         stock_status: string;
         name: string;
         sku: string;
+        quantity: number;
         thumbnail: {
             url: string;
             label: string;
         };
         url_key: string;
-        url_suffix: string;
         categories: {
             url_path: string;
             url_key: string;
@@ -961,6 +975,7 @@ declare const complexInsufficientQuantityGeneralMessage: {
     }[];
     uid: string;
     quantity: number;
+    gift_message_available: string;
     errors: null;
     prices: {
         price: {
@@ -1010,12 +1025,12 @@ declare const complexWithProductAttributes: {
         };
         name: string;
         sku: string;
+        quantity: number;
         thumbnail: {
             url: string;
             label: string;
         };
         url_key: string;
-        url_suffix: string;
         categories: {
             url_path: string;
             url_key: string;
@@ -1044,6 +1059,7 @@ declare const complexWithProductAttributes: {
     }[];
     uid: string;
     quantity: number;
+    gift_message_available: string;
     errors: null;
     prices: {
         price: {
@@ -1124,12 +1140,12 @@ declare const simpleWithNoDiscount: {
         };
         name: string;
         sku: string;
+        quantity: number;
         thumbnail: {
             url: string;
             label: string;
         };
         url_key: string;
-        url_suffix: string;
         categories: {
             url_path: string;
             url_key: string;
@@ -1137,6 +1153,7 @@ declare const simpleWithNoDiscount: {
     };
     uid: string;
     quantity: number;
+    gift_message_available: string;
     errors: null;
 };
 export { bundleOptions, bundleOptionsEmpty, giftCardPhysical, giftCardVirtual, simple, simpleCustomizable, configurable, configurableCustomizable, giftCard, downloadbleWithMultipleLinks, simpleLowInventory, complexInsufficientQuantity, complexInsufficientQuantityGeneralMessage, complexWithProductAttributes, simpleWithNoDiscount, };
